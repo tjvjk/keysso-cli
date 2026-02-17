@@ -14,7 +14,7 @@ description: Скилл для работы со всем сервисом Keys.
 # keysso-cli
 
 Используйте этот skill для практической работы с локальной командой `keysso-cli`.
-Подробное описание раздела контекстной рекламы, дерева команд, опций и сценариев запуска находится в `references/context-ads.md`.
+Подробное описание разделов контекстной рекламы и Яндекс Директ, дерева команд, опций и сценариев запуска находится в `references/context-ads.md`.
 
 ## Ограничения API
 
@@ -32,6 +32,13 @@ description: Скилл для работы со всем сервисом Keys.
 - `keysso-cli context ads retrieve --domain <домен>` # объявления домена
 - `keysso-cli context ads links --domain <домен>` # уникальные ссылки из объявлений
 - `keysso-cli context ads facts --domain <домен>` # уникальные факты из объявлений
+
+## Яндекс Директ
+
+Доступные команды раздела `direct`:
+
+- `keysso-cli direct domain --domain <домен>` # объявления Яндекс Директ по домену
+- `keysso-cli direct ads --kid <id>` # объявления Яндекс Директ по идентификатору фразы
 
 ## Региональные базы (`--base`)
 
@@ -64,12 +71,12 @@ description: Скилл для работы со всем сервисом Keys.
 
 CONTEXT_ADS_REFERENCE = """# Раздел «Контекстная реклама» в keysso-cli
 
-Этот файл описывает только текущую структуру `keysso-cli` для раздела `context`.
+Этот файл описывает текущую структуру `keysso-cli` для разделов `context` и `direct`.
 
 ## Базовый запуск
 
 - Передайте токен через `--api-key` или переменную окружения `KEYSSO_API_KEY`
-- Основной формат: `keysso-cli context ...`
+- Основной формат: `keysso-cli context ...` и `keysso-cli direct ...`
 
 ## Дерево команд
 
@@ -84,11 +91,15 @@ keysso-cli
       retrieve
       links
       facts
+  direct
+    domain
+    ads
 ```
 
 ## Общие аргументы
 
-- `--domain` обязателен для всех команд внутри `context`
+- `--domain` обязателен для всех команд внутри `context` и для `direct domain`
+- `--kid` обязателен для команды `direct ads`
 - `--base` региональная база (`msk`, `spb`, `zen`, `gru` и другие)
 - `--filter` фильтр запроса
 - `--page` номер страницы
@@ -129,12 +140,24 @@ keysso-cli
 - Назначение: получить уникальные факты из объявлений
 - Пример: `keysso-cli context ads facts --domain пример.рф --base msk`
 
+### `direct domain`
+
+- Назначение: получить объявления Яндекс Директ по домену
+- Пример: `keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25`
+
+### `direct ads`
+
+- Назначение: получить объявления Яндекс Директ по идентификатору фразы
+- Дополнительно обязателен `--kid`
+- Пример: `keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25`
+
 ## Практический рабочий процесс
 
 1. Сначала получите конкурентное окружение через `context concurents`
 2. Затем соберите семантику через `context keywords list`
 3. При необходимости разберите отдельные объявления через `context keywords byads`
 4. Для креативов и агрегатов используйте блок `context ads` (`retrieve`, `links`, `facts`)
+5. Для анализа Яндекс Директ используйте `direct domain` и `direct ads`
 """
 
 

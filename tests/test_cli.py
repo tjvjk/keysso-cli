@@ -271,6 +271,8 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
     skill = tmp_path / ".claude" / "skills" / "keysso-cli"
     skill_file = skill / "SKILL.md"
     reference = skill / "references" / "context-ads.md"
+    skill_text = skill_file.read_text(encoding="utf-8")
+    reference_text = reference.read_text(encoding="utf-8")
     expected = {
         str(skill_file),
         str(reference),
@@ -281,6 +283,10 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         and set(payload["files"]) == expected
         and skill_file.exists()
         and reference.exists()
+        and "keysso-cli direct domain --domain <домен>" in skill_text
+        and "keysso-cli direct ads --kid <id>" in skill_text
+        and "keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25" in reference_text
+        and "keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25" in reference_text
     ), "Install command unexpectedly does not create the expected skill files in current directory"
 
 
