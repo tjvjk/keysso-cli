@@ -1,0 +1,32 @@
+[project]
+name = "keysso-cli"
+version = "0.1.0"
+description = "Command line client for Keysso report simple context endpoints"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "keysso>=0.1.0",
+]
+
+[project.scripts]
+keysso-cli = "keysso_cli.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.26.3"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/keysso_cli"]
+
+[tool.uv.sources]
+keysso = { path = "../keysso", editable = true }
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+log_cli = false
