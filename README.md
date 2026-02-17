@@ -53,6 +53,17 @@ keysso-cli context ads links --help
 keysso-cli context ads facts --help
 ```
 
+## Установка skill в текущей директории
+
+Команда ниже создает `.claude/skills/keysso-cli` в текущем каталоге и добавляет:
+
+- `SKILL.md` с общим описанием skill
+- `references/context-ads.md` с подробным описанием раздела `context`
+
+```sh
+keysso-cli install --skills
+```
+
 ## Региональные базы (`--base`)
 
 Региональная база данных, по которой происходит выборка:

@@ -191,3 +191,35 @@ def test_cli_displays_field_descriptions_in_help_for_each_command(
         execute(args)
     output = capsys.readouterr().out
     assert all(token in output for token in tokens), "CLI help unexpectedly does not show field description glossary for the selected command"
+
+
+def test_cli_install_skills_creates_skill_files_in_current_directory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Install command cannot skip creating the skill bundle."""
+    monkeypatch.chdir(tmp_path)
+    stream = io.StringIO()
+    execute(["install", "--skills"], env={}, stream=stream)
+    payload = json.loads(stream.getvalue())
+    skill = tmp_path / ".claude" / "skills" / "keysso-cli"
+    skill_file = skill / "SKILL.md"
+    reference = skill / "references" / "context-ads.md"
+    expected = {
+        str(skill_file),
+        str(reference),
+    }
+    assert (
+        payload["status"] == "ok"
+        and payload["path"] == str(skill)
+        and set(payload["files"]) == expected
+        and skill_file.exists()
+        and reference.exists()
+    ), "Install command unexpectedly does not create the expected skill files in current directory"
+
+
+def test_cli_install_cannot_run_without_skills_flag() -> None:
+    """Install command cannot accept execution without explicit target flag."""
+    with pytest.raises(SystemExit) as error:
+        execute(["install"], env={})
+    assert error.value.code == 2, "Install command unexpectedly does not fail without --skills"
