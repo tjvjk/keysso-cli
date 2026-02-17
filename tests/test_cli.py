@@ -160,3 +160,11 @@ def test_cli_cannot_fail_to_show_help_for_context_ads() -> None:
     with pytest.raises(SystemExit) as error:
         execute(["context", "ads", "--help"])
     assert error.value.code == 0, "CLI help output unexpectedly does not exit with success"
+
+
+def test_cli_displays_help_in_russian_for_context_level(capsys: pytest.CaptureFixture[str]) -> None:
+    """Help output cannot remain partially English."""
+    with pytest.raises(SystemExit):
+        execute(["context", "--help"])
+    output = capsys.readouterr().out
+    assert "использование:" in output and "позиционные аргументы:" in output and "опции:" in output, "CLI help unexpectedly is not translated to Russian"
