@@ -1,7 +1,7 @@
 [project]
 name = "keysso-cli"
 version = "0.1.0"
-description = "Command line client for Keysso endpoints"
+description = "CLI-клиент для работы с эндпоинтами Keysso"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
