@@ -159,74 +159,119 @@ def add_domain_option(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--domain", required=True, help="Имя домена")
 
 
+def add_concurents_parser(context_commands: Any) -> None:
+    """Attach the context concurents parser."""
+    parser = context_commands.add_parser(
+        "concurents",
+        help="Показать конкурентов домена в контекстной рекламе",
+        description="Список конкурентов домена в контекстной рекламе",
+        epilog=CONCURENTS_FIELDS,
+    )
+    add_domain_option(parser)
+    add_query_options(parser)
+    parser.set_defaults(action="concurents")
+
+
+def add_keywords_list_parser(keyword_commands: Any) -> None:
+    """Attach the keywords list parser."""
+    parser = keyword_commands.add_parser(
+        "list",
+        help="Список ключевых слов контекстной рекламы домена",
+        description="Список ключевых слов домена в контекстной рекламе",
+        epilog=KEYWORDS_LIST_FIELDS,
+    )
+    add_domain_option(parser)
+    add_query_options(parser)
+    parser.set_defaults(action="keywords.list")
+
+
+def add_keywords_byads_parser(keyword_commands: Any) -> None:
+    """Attach the keywords byads parser."""
+    parser = keyword_commands.add_parser(
+        "byads",
+        help="Ключевые слова для конкретного объявления",
+        description="Ключевые слова, по которым показывается выбранное объявление",
+        epilog=KEYWORDS_BYADS_FIELDS,
+    )
+    add_domain_option(parser)
+    add_query_options(parser)
+    parser.add_argument("--ads-id", required=True, dest="ads_id", help="Идентификатор объявления")
+    parser.set_defaults(action="keywords.byads")
+
+
+def add_keywords_parser(context_commands: Any) -> None:
+    """Attach the keywords parser tree."""
+    parser = context_commands.add_parser("keywords", help="Показать ключевые слова из объявлений домена")
+    keyword_commands = parser.add_subparsers(dest="keyword_command", required=True)
+    add_keywords_list_parser(keyword_commands)
+    add_keywords_byads_parser(keyword_commands)
+
+
+def add_ads_retrieve_parser(ad_commands: Any) -> None:
+    """Attach the ads retrieve parser."""
+    parser = ad_commands.add_parser(
+        "retrieve",
+        help="Список объявлений домена в контекстной рекламе",
+        description="Список объявлений домена в контекстной рекламе",
+        epilog=ADS_RETRIEVE_FIELDS,
+    )
+    add_domain_option(parser)
+    add_query_options(parser)
+    parser.add_argument("--full", action="store_true", help="Добавить массив ключевых слов для каждого объявления")
+    parser.set_defaults(action="ads.retrieve")
+
+
+def add_ads_links_parser(ad_commands: Any) -> None:
+    """Attach the ads links parser."""
+    parser = ad_commands.add_parser(
+        "links",
+        help="Уникальные ссылки из объявлений домена",
+        description="Список уникальных ссылок, найденных в объявлениях домена",
+        epilog=ADS_LINKS_FIELDS,
+    )
+    add_domain_option(parser)
+    add_query_options(parser)
+    parser.set_defaults(action="ads.links")
+
+
+def add_ads_facts_parser(ad_commands: Any) -> None:
+    """Attach the ads facts parser."""
+    parser = ad_commands.add_parser(
+        "facts",
+        help="Уникальные факты из объявлений домена",
+        description="Список уникальных фактов, найденных в объявлениях домена",
+        epilog=ADS_FACTS_FIELDS,
+    )
+    add_domain_option(parser)
+    add_query_options(parser)
+    parser.set_defaults(action="ads.facts")
+
+
+def add_ads_parser(context_commands: Any) -> None:
+    """Attach the ads parser tree."""
+    parser = context_commands.add_parser("ads", help="Показать объявления и их агрегированные элементы")
+    ad_commands = parser.add_subparsers(dest="ad_command", required=True)
+    add_ads_retrieve_parser(ad_commands)
+    add_ads_links_parser(ad_commands)
+    add_ads_facts_parser(ad_commands)
+
+
+def add_context_parser(context_group: Any) -> None:
+    """Attach the context parser tree."""
+    parser = context_group.add_parser("context", help="Отчеты по контекстной рекламе для домена")
+    context_commands = parser.add_subparsers(dest="context_command", required=True)
+    add_concurents_parser(context_commands)
+    add_keywords_parser(context_commands)
+    add_ads_parser(context_commands)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the full parser tree."""
     parser = RussianArgumentParser(prog="keysso-cli", description="CLI для отчетов по контекстной рекламе Keys.so")
     parser.add_argument("--api-key", dest="api_key", help="Ключ API, по умолчанию из KEYSSO_API_KEY")
     parser.add_argument("--base-url", dest="base_url", help="Переопределить базовый URL API")
     context_group = parser.add_subparsers(dest="context_group", required=True, parser_class=RussianArgumentParser)
-    context = context_group.add_parser("context", help="Отчеты по контекстной рекламе для домена")
-    context_commands = context.add_subparsers(dest="context_command", required=True)
-    concurents = context_commands.add_parser(
-        "concurents",
-        help="Показать конкурентов домена в контекстной рекламе",
-        description="Список конкурентов домена в контекстной рекламе",
-        epilog=CONCURENTS_FIELDS,
-    )
-    add_domain_option(concurents)
-    add_query_options(concurents)
-    concurents.set_defaults(action="concurents")
-    keywords = context_commands.add_parser("keywords", help="Показать ключевые слова из объявлений домена")
-    keyword_commands = keywords.add_subparsers(dest="keyword_command", required=True)
-    keyword_list = keyword_commands.add_parser(
-        "list",
-        help="Список ключевых слов контекстной рекламы домена",
-        description="Список ключевых слов домена в контекстной рекламе",
-        epilog=KEYWORDS_LIST_FIELDS,
-    )
-    add_domain_option(keyword_list)
-    add_query_options(keyword_list)
-    keyword_list.set_defaults(action="keywords.list")
-    keyword_byads = keyword_commands.add_parser(
-        "byads",
-        help="Ключевые слова для конкретного объявления",
-        description="Ключевые слова, по которым показывается выбранное объявление",
-        epilog=KEYWORDS_BYADS_FIELDS,
-    )
-    add_domain_option(keyword_byads)
-    add_query_options(keyword_byads)
-    keyword_byads.add_argument("--ads-id", required=True, dest="ads_id", help="Идентификатор объявления")
-    keyword_byads.set_defaults(action="keywords.byads")
-    ads = context_commands.add_parser("ads", help="Показать объявления и их агрегированные элементы")
-    ad_commands = ads.add_subparsers(dest="ad_command", required=True)
-    ad_retrieve = ad_commands.add_parser(
-        "retrieve",
-        help="Список объявлений домена в контекстной рекламе",
-        description="Список объявлений домена в контекстной рекламе",
-        epilog=ADS_RETRIEVE_FIELDS,
-    )
-    add_domain_option(ad_retrieve)
-    add_query_options(ad_retrieve)
-    ad_retrieve.add_argument("--full", action="store_true", help="Добавить массив ключевых слов для каждого объявления")
-    ad_retrieve.set_defaults(action="ads.retrieve")
-    ad_links = ad_commands.add_parser(
-        "links",
-        help="Уникальные ссылки из объявлений домена",
-        description="Список уникальных ссылок, найденных в объявлениях домена",
-        epilog=ADS_LINKS_FIELDS,
-    )
-    add_domain_option(ad_links)
-    add_query_options(ad_links)
-    ad_links.set_defaults(action="ads.links")
-    ad_facts = ad_commands.add_parser(
-        "facts",
-        help="Уникальные факты из объявлений домена",
-        description="Список уникальных фактов, найденных в объявлениях домена",
-        epilog=ADS_FACTS_FIELDS,
-    )
-    add_domain_option(ad_facts)
-    add_query_options(ad_facts)
-    ad_facts.set_defaults(action="ads.facts")
+    add_context_parser(context_group)
     return parser
 
 
