@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
   "keysso>=0.1.0",
+  "ruff>=0.15.1",
 ]
 
 [project.scripts]
@@ -30,3 +31,6 @@ dev = [
 testpaths = ["tests"]
 addopts = "-q"
 log_cli = false
+markers = [
+  "e2e: runs live API checks without mocks",
+]
