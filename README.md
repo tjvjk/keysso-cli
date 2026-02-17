@@ -5,9 +5,16 @@
 - Общая документация API: https://apidoc.keys.so/
 - Сейчас поддержан раздел «Контекстная реклама»: https://apidoc.keys.so/#tag/Kontekstnaya-reklama
 
-## TODO
+## Установка skill в текущей директории
 
-- Добавить поддержку остальных разделов API из https://apidoc.keys.so/
+Команда ниже создает `.claude/skills/keysso-cli` в текущем каталоге и добавляет:
+
+- `SKILL.md` с общим описанием skill
+- `references/context-ads.md` с подробным описанием раздела `context`
+
+```sh
+keysso-cli install --skills
+```
 
 ## Использование
 
@@ -131,6 +138,10 @@ uv tool upgrade keysso-cli
 ```sh
 uv tool list
 ```
+
+## TODO
+
+- Добавить поддержку остальных разделов API из https://apidoc.keys.so/
 
 ## Лицензия
 

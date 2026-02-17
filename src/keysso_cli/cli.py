@@ -10,6 +10,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, Callable
 
 from keysso import Keysso
+from keysso_cli.skills import install_skills
 
 
 CONCURENTS_FIELDS = """Поля ответа:
@@ -265,13 +266,25 @@ def add_context_parser(context_group: Any) -> None:
     add_ads_parser(context_commands)
 
 
+def add_install_parser(commands: Any) -> None:
+    """Attach the install parser."""
+    parser = commands.add_parser(
+        "install",
+        help="Установить локальные ресурсы keysso-cli",
+        description="Установка локальных ресурсов keysso-cli",
+    )
+    parser.add_argument("--skills", action="store_true", help="Установить skill keysso-cli в .claude/skills")
+    parser.set_defaults(action="install")
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the full parser tree."""
     parser = RussianArgumentParser(prog="keysso-cli", description="CLI для отчетов по контекстной рекламе Keys.so")
     parser.add_argument("--api-key", dest="api_key", help="Ключ API, по умолчанию из KEYSSO_API_KEY")
     parser.add_argument("--base-url", dest="base_url", help="Переопределить базовый URL API")
-    context_group = parser.add_subparsers(dest="context_group", required=True, parser_class=RussianArgumentParser)
-    add_context_parser(context_group)
+    commands = parser.add_subparsers(dest="command", required=True, parser_class=RussianArgumentParser)
+    add_context_parser(commands)
+    add_install_parser(commands)
     return parser
 
 
@@ -327,6 +340,12 @@ def execute(
     """Parse args, call SDK, and print JSON response."""
     parser = build_parser()
     args = parser.parse_args(argv)
+    output = sys.stdout if stream is None else stream
+    if args.action == "install":
+        if not args.skills:
+            parser.error("для команды install требуется флаг --skills")
+        emit(install_skills(), output)
+        return 0
     source = os.environ if env is None else env
     api_key = args.api_key or source.get("KEYSSO_API_KEY")
     if not api_key:
@@ -334,7 +353,6 @@ def execute(
     options: dict[str, Any] = {"api_key": api_key}
     if args.base_url:
         options["base_url"] = args.base_url
-    output = sys.stdout if stream is None else stream
     with client_factory(**options) as client:
         emit(invoke(client, args), output)
     return 0
