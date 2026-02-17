@@ -31,3 +31,6 @@ dev = [
 testpaths = ["tests"]
 addopts = "-q"
 log_cli = false
+markers = [
+  "e2e: runs live API checks without mocks",
+]
