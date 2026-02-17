@@ -3,7 +3,7 @@ name = "keysso-cli"
 version = "0.1.0"
 description = "CLI-клиент для работы с эндпоинтами Keysso"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
   "keysso>=0.1.0",
 ]
@@ -23,7 +23,7 @@ keysso = { path = "../keysso", editable = true }
 
 [dependency-groups]
 dev = [
-  "pytest>=8.4.0",
+  "pytest>=9.0.2",
 ]
 
 [tool.pytest.ini_options]
