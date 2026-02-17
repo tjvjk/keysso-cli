@@ -43,7 +43,11 @@ def make_factory() -> tuple[dict[str, Any], Any]:
             retrieve_facts=make_method("ads.facts"),
         ),
     )
-    report = SimpleNamespace(simple=SimpleNamespace(context=context))
+    direct = SimpleNamespace(
+        retrieve_domain=make_method("direct.domain"),
+        retrieve_ads=make_method("direct.ads"),
+    )
+    report = SimpleNamespace(simple=SimpleNamespace(context=context, direct=direct))
 
     @contextmanager
     def factory(**kwargs: Any) -> Iterator[Any]:
@@ -65,7 +69,7 @@ def run_cli(args: list[str]) -> dict[str, Any]:
     return box
 
 
-def test_openapi_schema_contains_context_paths_used_by_cli() -> None:
+def test_openapi_schema_contains_supported_paths_used_by_cli() -> None:
     """CLI tests cannot stay relevant if OpenAPI paths are removed."""
     schema = json.loads((Path(__file__).resolve().parents[1] / "openapi.json").read_text(encoding="utf-8"))
     supported = {
@@ -75,8 +79,10 @@ def test_openapi_schema_contains_context_paths_used_by_cli() -> None:
         "/report/simple/context/ads/",
         "/report/simple/context/ads/links",
         "/report/simple/context/ads/facts",
+        "/report/simple/direct/domain",
+        "/report/simple/direct/ads",
     }
-    assert supported.issubset(set(schema["paths"].keys())), "OpenAPI schema unexpectedly does not keep supported context paths"
+    assert supported.issubset(set(schema["paths"].keys())), "OpenAPI schema unexpectedly does not keep supported CLI paths"
 
 
 @pytest.mark.parametrize(
@@ -137,6 +143,57 @@ def test_cli_routes_context_commands_to_expected_sdk_calls(
     assert box["calls"] == [(action, expected)], "CLI unexpectedly does not map context command arguments into SDK call parameters"
 
 
+@pytest.mark.parametrize(
+    ("tail", "action", "with_domain", "with_kid"),
+    [
+        (["domain"], "direct.domain", True, False),
+        (["ads"], "direct.ads", False, True),
+    ],
+)
+def test_cli_routes_direct_commands_to_expected_sdk_calls(
+    tail: list[str],
+    action: str,
+    with_domain: bool,
+    with_kid: bool,
+) -> None:
+    """CLI cannot be trusted if direct route-to-method mapping changes."""
+    stamp = secrets.token_hex(4)
+    query = f"direct:{stamp}"
+    args = [
+        "--api-key",
+        f"токен-{stamp}",
+        "direct",
+        *tail,
+        "--base",
+        "msk",
+        "--filter",
+        query,
+        "--page",
+        "3",
+        "--per-page",
+        "9",
+        "--sort",
+        "keys_count|desc",
+    ]
+    expected: dict[str, Any] = {
+        "base": "msk",
+        "filter": query,
+        "page": 3,
+        "per_page": 9,
+        "sort": "keys_count|desc",
+    }
+    if with_domain:
+        domain = f"пример-{stamp}.рф"
+        args.extend(["--domain", domain])
+        expected["domain"] = domain
+    if with_kid:
+        kid = int(stamp[:6], 16)
+        args.extend(["--kid", str(kid)])
+        expected["kid"] = kid
+    box = run_cli(args)
+    assert box["calls"] == [(action, expected)], "CLI unexpectedly does not map direct command arguments into SDK call parameters"
+
+
 def test_cli_passes_client_options_to_sdk_factory() -> None:
     """SDK client options cannot drift from CLI arguments."""
     stamp = secrets.token_hex(4)
@@ -162,6 +219,13 @@ def test_cli_cannot_fail_to_show_help_for_context_ads() -> None:
     assert error.value.code == 0, "CLI help output unexpectedly does not exit with success"
 
 
+def test_cli_cannot_fail_to_show_help_for_direct_commands() -> None:
+    """Help output should still be reachable for direct commands."""
+    with pytest.raises(SystemExit) as error:
+        execute(["direct", "--help"])
+    assert error.value.code == 0, "CLI help output unexpectedly does not exit with success for direct command tree"
+
+
 def test_cli_displays_help_in_russian_for_context_level(capsys: pytest.CaptureFixture[str]) -> None:
     """Help output cannot remain partially English."""
     with pytest.raises(SystemExit):
@@ -179,6 +243,8 @@ def test_cli_displays_help_in_russian_for_context_level(capsys: pytest.CaptureFi
         (["context", "ads", "retrieve", "--help"], ("Поля ответа:", "keyscnt", "legal", "links")),
         (["context", "ads", "links", "--help"], ("Поля ответа:", "links", "data", "total")),
         (["context", "ads", "facts", "--help"], ("Поля ответа:", "facts", "data", "total")),
+        (["direct", "domain", "--help"], ("Поля ответа:", "keys_count", "updated_at", "uuid")),
+        (["direct", "ads", "--help"], ("Поля ответа:", "keys_count", "updated_at", "uuid")),
     ],
 )
 def test_cli_displays_field_descriptions_in_help_for_each_command(

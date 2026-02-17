@@ -3,7 +3,7 @@
 `keysso-cli` — CLI-клиент для работы с Keysso API из терминала.
 
 - Общая документация API: https://apidoc.keys.so/
-- Сейчас поддержан раздел «Контекстная реклама»: https://apidoc.keys.so/#tag/Kontekstnaya-reklama
+- Поддержаны разделы «Контекстная реклама» и «Реклама» (Yandex Direct): https://apidoc.keys.so/
 
 ## Установка skill в текущей директории
 
@@ -47,6 +47,14 @@ keysso-cli context ads facts --domain пример.рф --base msk
 ```
 
 ```sh
+keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25
+```
+
+```sh
+keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25
+```
+
+```sh
 keysso-cli context concurents --help
 ```
 
@@ -58,6 +66,8 @@ keysso-cli context keywords byads --help
 keysso-cli context ads retrieve --help
 keysso-cli context ads links --help
 keysso-cli context ads facts --help
+keysso-cli direct domain --help
+keysso-cli direct ads --help
 ```
 
 ## Региональные базы (`--base`)
