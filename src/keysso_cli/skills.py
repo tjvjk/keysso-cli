@@ -8,7 +8,7 @@ from typing import Any
 
 SKILL_TEMPLATE = """---
 name: keysso-cli
-description: Работа с отчетами Keys.so по контекстной рекламе через локальную команду keysso-cli. Используйте skill, когда нужно собрать команды, подобрать параметры, интерпретировать ответы и выстроить рабочий процесс для context concurents, context keywords list/byads и context ads retrieve/links/facts.
+description: Скилл для работы со всем сервисом Keys.so — сервисом анализа конкурентов в SEO и PPC. Используйте skill, когда нужно собрать команды, подобрать параметры, интерпретировать ответы API и выстроить рабочий процесс через локальную команду keysso-cli.
 ---
 
 # keysso-cli
