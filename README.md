@@ -2,48 +2,63 @@
 
 Минимальная CLI-обертка для Keysso API.
 
-## Установка
+## Установка для разработки
 
 ```sh
 uv sync
 ```
 
+## Установка в систему (без `uv run`)
+
+Из директории `keysso-cli`:
+
+```sh
+uv tool install --editable .
+```
+
+Если команда `keysso-cli` не находится, добавьте `~/.local/bin` в `PATH`:
+
+```sh
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
 ## Использование
 
 ```sh
-KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context concurents --domain пример.рф --base msk
+KEYSSO_API_KEY="ваш-токен" keysso-cli context concurents --domain пример.рф --base msk
 ```
 
 ```sh
-KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context keywords list --domain пример.рф --base msk --page 1 --per-page 25
+KEYSSO_API_KEY="ваш-токен" keysso-cli context keywords list --domain пример.рф --base msk --page 1 --per-page 25
 ```
 
 ```sh
-KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context keywords byads --domain пример.рф --ads-id 42 --base msk
+KEYSSO_API_KEY="ваш-токен" keysso-cli context keywords byads --domain пример.рф --ads-id 42 --base msk
 ```
 
 ```sh
-KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context ads retrieve --domain пример.рф --base msk --full
+KEYSSO_API_KEY="ваш-токен" keysso-cli context ads retrieve --domain пример.рф --base msk --full
 ```
 
 ```sh
-KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context ads links --domain пример.рф --base msk
+KEYSSO_API_KEY="ваш-токен" keysso-cli context ads links --domain пример.рф --base msk
 ```
 
 ```sh
-KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context ads facts --domain пример.рф --base msk
+KEYSSO_API_KEY="ваш-токен" keysso-cli context ads facts --domain пример.рф --base msk
 ```
 
 ```sh
-uv run keysso-cli context concurents --help
+keysso-cli context concurents --help
 ```
 
 Для расшифровки полей ответа используйте `--help` у каждой команды:
 
 ```sh
-uv run keysso-cli context keywords list --help
-uv run keysso-cli context keywords byads --help
-uv run keysso-cli context ads retrieve --help
-uv run keysso-cli context ads links --help
-uv run keysso-cli context ads facts --help
+keysso-cli context keywords list --help
+keysso-cli context keywords byads --help
+keysso-cli context ads retrieve --help
+keysso-cli context ads links --help
+keysso-cli context ads facts --help
 ```
