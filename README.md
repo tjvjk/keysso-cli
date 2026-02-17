@@ -55,6 +55,10 @@ keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25
 ```
 
 ```sh
+keysso-cli direct ads --keyword "пластиковые окна" --base msk --page 1 --per-page 25
+```
+
+```sh
 keysso-cli context concurents --help
 ```
 

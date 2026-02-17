@@ -31,6 +31,11 @@ def make_factory() -> tuple[dict[str, Any], Any]:
 
         return call
 
+    def dashboard_method(**kwargs: Any) -> Any:
+        """Capture keyword dashboard lookup and return keyword id."""
+        calls.append(("keyword_dashboard", kwargs))
+        return SimpleNamespace(id=17222067)
+
     context = SimpleNamespace(
         retrieve_concurents=make_method("concurents"),
         keywords=SimpleNamespace(
@@ -47,7 +52,13 @@ def make_factory() -> tuple[dict[str, Any], Any]:
         retrieve_domain=make_method("direct.domain"),
         retrieve_ads=make_method("direct.ads"),
     )
-    report = SimpleNamespace(simple=SimpleNamespace(context=context, direct=direct))
+    report = SimpleNamespace(
+        simple=SimpleNamespace(
+            context=context,
+            direct=direct,
+            retrieve_keyword_dashboard=dashboard_method,
+        )
+    )
 
     @contextmanager
     def factory(**kwargs: Any) -> Iterator[Any]:
@@ -144,10 +155,11 @@ def test_cli_routes_context_commands_to_expected_sdk_calls(
 
 
 @pytest.mark.parametrize(
-    ("tail", "action", "with_domain", "with_kid"),
+    ("tail", "action", "with_domain", "with_kid", "with_keyword"),
     [
-        (["domain"], "direct.domain", True, False),
-        (["ads"], "direct.ads", False, True),
+        (["domain"], "direct.domain", True, False, False),
+        (["ads"], "direct.ads", False, True, False),
+        (["ads"], "direct.ads", False, False, True),
     ],
 )
 def test_cli_routes_direct_commands_to_expected_sdk_calls(
@@ -155,6 +167,7 @@ def test_cli_routes_direct_commands_to_expected_sdk_calls(
     action: str,
     with_domain: bool,
     with_kid: bool,
+    with_keyword: bool,
 ) -> None:
     """CLI cannot be trusted if direct route-to-method mapping changes."""
     stamp = secrets.token_hex(4)
@@ -190,8 +203,16 @@ def test_cli_routes_direct_commands_to_expected_sdk_calls(
         kid = int(stamp[:6], 16)
         args.extend(["--kid", str(kid)])
         expected["kid"] = kid
+    if with_keyword:
+        keyword = f"поисковая фраза {stamp}"
+        args.extend(["--keyword", keyword])
+        expected["kid"] = 17222067
     box = run_cli(args)
-    assert box["calls"] == [(action, expected)], "CLI unexpectedly does not map direct command arguments into SDK call parameters"
+    if with_keyword:
+        expected_calls = [("keyword_dashboard", {"keyword": keyword, "base": "msk"}), (action, expected)]
+    else:
+        expected_calls = [(action, expected)]
+    assert box["calls"] == expected_calls, "CLI unexpectedly does not map direct command arguments into SDK call parameters"
 
 
 def test_cli_passes_client_options_to_sdk_factory() -> None:
@@ -224,6 +245,14 @@ def test_cli_cannot_fail_to_show_help_for_direct_commands() -> None:
     with pytest.raises(SystemExit) as error:
         execute(["direct", "--help"])
     assert error.value.code == 0, "CLI help output unexpectedly does not exit with success for direct command tree"
+
+
+def test_cli_displays_keyword_option_for_direct_ads(capsys: pytest.CaptureFixture[str]) -> None:
+    """Direct ads help cannot miss the keyword lookup option."""
+    with pytest.raises(SystemExit):
+        execute(["direct", "ads", "--help"])
+    output = capsys.readouterr().out
+    assert "--keyword" in output and "--kid" in output, "Direct ads help unexpectedly does not show both kid and keyword options"
 
 
 def test_cli_displays_help_in_russian_for_context_level(capsys: pytest.CaptureFixture[str]) -> None:
@@ -285,8 +314,10 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         and reference.exists()
         and "keysso-cli direct domain --domain <домен>" in skill_text
         and "keysso-cli direct ads --kid <id>" in skill_text
+        and "keysso-cli direct ads --keyword <фраза>" in skill_text
         and "keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25" in reference_text
         and "keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25" in reference_text
+        and "keysso-cli direct ads --keyword \"пластиковые окна\" --base msk --page 1 --per-page 25" in reference_text
     ), "Install command unexpectedly does not create the expected skill files in current directory"
 
 

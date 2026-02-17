@@ -39,6 +39,7 @@ description: Скилл для работы со всем сервисом Keys.
 
 - `keysso-cli direct domain --domain <домен>` # объявления Яндекс Директ по домену
 - `keysso-cli direct ads --kid <id>` # объявления Яндекс Директ по идентификатору фразы
+- `keysso-cli direct ads --keyword <фраза>` # объявления Яндекс Директ по поисковой фразе
 
 ## Региональные базы (`--base`)
 
@@ -100,6 +101,7 @@ keysso-cli
 
 - `--domain` обязателен для всех команд внутри `context` и для `direct domain`
 - `--kid` обязателен для команды `direct ads`
+- `--keyword` альтернатива `--kid` для команды `direct ads`
 - `--base` региональная база (`msk`, `spb`, `zen`, `gru` и другие)
 - `--filter` фильтр запроса
 - `--page` номер страницы
@@ -148,8 +150,9 @@ keysso-cli
 ### `direct ads`
 
 - Назначение: получить объявления Яндекс Директ по идентификатору фразы
-- Дополнительно обязателен `--kid`
+- Нужен один из аргументов: `--kid` или `--keyword`
 - Пример: `keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25`
+- Пример: `keysso-cli direct ads --keyword "пластиковые окна" --base msk --page 1 --per-page 25`
 
 ## Практический рабочий процесс
 
