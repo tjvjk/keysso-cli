@@ -10,6 +10,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, Callable
 
 from keysso import Keysso
+
 from keysso_cli.context import add_parser as add_context_parser
 from keysso_cli.context import invoke as invoke_context
 from keysso_cli.direct import add_parser as add_direct_parser
@@ -26,7 +27,9 @@ class RussianArgumentParser(argparse.ArgumentParser):
         super().__init__(*args, **kwargs)
         self._positionals.title = "позиционные аргументы"
         self._optionals.title = "опции"
-        self.add_argument("-h", "--help", action="help", help="показать эту справку и выйти")
+        self.add_argument(
+            "-h", "--help", action="help", help="показать эту справку и выйти"
+        )
 
     def format_usage(self) -> str:
         """Render usage with a Russian prefix."""
@@ -49,7 +52,11 @@ def add_install_parser(commands: Any) -> None:
         help="Установить локальные ресурсы keysso-cli",
         description="Установка локальных ресурсов keysso-cli",
     )
-    parser.add_argument("--skills", action="store_true", help="Установить skill keysso-cli в .claude/skills")
+    parser.add_argument(
+        "--skills",
+        action="store_true",
+        help="Установить skill keysso-cli в .claude/skills",
+    )
     parser.set_defaults(action="install")
 
 
@@ -59,9 +66,15 @@ def build_parser() -> argparse.ArgumentParser:
         prog="keysso-cli",
         description="CLI для отчетов по контекстной рекламе и Яндекс Директ в Keys.so",
     )
-    parser.add_argument("--api-key", dest="api_key", help="Ключ API, по умолчанию из KEYSSO_API_KEY")
-    parser.add_argument("--base-url", dest="base_url", help="Переопределить базовый URL API")
-    commands = parser.add_subparsers(dest="command", required=True, parser_class=RussianArgumentParser)
+    parser.add_argument(
+        "--api-key", dest="api_key", help="Ключ API, по умолчанию из KEYSSO_API_KEY"
+    )
+    parser.add_argument(
+        "--base-url", dest="base_url", help="Переопределить базовый URL API"
+    )
+    commands = parser.add_subparsers(
+        dest="command", required=True, parser_class=RussianArgumentParser
+    )
     add_context_parser(commands)
     add_direct_parser(commands)
     add_install_parser(commands)

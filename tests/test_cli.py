@@ -27,7 +27,11 @@ def make_factory() -> tuple[dict[str, Any], Any]:
             """Capture one method call."""
             calls.append((name, kwargs))
             payload = {"action": name, "kwargs": kwargs}
-            return SimpleNamespace(to_json=lambda indent=2: json.dumps(payload, ensure_ascii=False, indent=indent))
+            return SimpleNamespace(
+                to_json=lambda indent=2: json.dumps(
+                    payload, ensure_ascii=False, indent=indent
+                )
+            )
 
         return call
 
@@ -82,7 +86,11 @@ def run_cli(args: list[str]) -> dict[str, Any]:
 
 def test_openapi_schema_contains_supported_paths_used_by_cli() -> None:
     """CLI tests cannot stay relevant if OpenAPI paths are removed."""
-    schema = json.loads((Path(__file__).resolve().parents[1] / "openapi.json").read_text(encoding="utf-8"))
+    schema = json.loads(
+        (Path(__file__).resolve().parents[1] / "openapi.json").read_text(
+            encoding="utf-8"
+        )
+    )
     supported = {
         "/report/simple/context/concurents",
         "/report/simple/context/keywords",
@@ -93,7 +101,9 @@ def test_openapi_schema_contains_supported_paths_used_by_cli() -> None:
         "/report/simple/direct/domain",
         "/report/simple/direct/ads",
     }
-    assert supported.issubset(set(schema["paths"].keys())), "OpenAPI schema unexpectedly does not keep supported CLI paths"
+    assert supported.issubset(set(schema["paths"].keys())), (
+        "OpenAPI schema unexpectedly does not keep supported CLI paths"
+    )
 
 
 @pytest.mark.parametrize(
@@ -151,7 +161,9 @@ def test_cli_routes_context_commands_to_expected_sdk_calls(
         args.append("--full")
         expected["full"] = True
     box = run_cli(args)
-    assert box["calls"] == [(action, expected)], "CLI unexpectedly does not map context command arguments into SDK call parameters"
+    assert box["calls"] == [(action, expected)], (
+        "CLI unexpectedly does not map context command arguments into SDK call parameters"
+    )
 
 
 @pytest.mark.parametrize(
@@ -209,10 +221,15 @@ def test_cli_routes_direct_commands_to_expected_sdk_calls(
         expected["kid"] = 17222067
     box = run_cli(args)
     if with_keyword:
-        expected_calls = [("keyword_dashboard", {"keyword": keyword, "base": "msk"}), (action, expected)]
+        expected_calls = [
+            ("keyword_dashboard", {"keyword": keyword, "base": "msk"}),
+            (action, expected),
+        ]
     else:
         expected_calls = [(action, expected)]
-    assert box["calls"] == expected_calls, "CLI unexpectedly does not map direct command arguments into SDK call parameters"
+    assert box["calls"] == expected_calls, (
+        "CLI unexpectedly does not map direct command arguments into SDK call parameters"
+    )
 
 
 def test_cli_passes_client_options_to_sdk_factory() -> None:
@@ -230,50 +247,91 @@ def test_cli_passes_client_options_to_sdk_factory() -> None:
             f"домен-{stamp}.рф",
         ]
     )
-    assert box["kwargs"] == {"api_key": f"токен-{stamp}", "base_url": f"http://127.0.0.1:{int(stamp[:4], 16)}"}, "CLI does not pass explicit client options into SDK factory"
+    assert box["kwargs"] == {
+        "api_key": f"токен-{stamp}",
+        "base_url": f"http://127.0.0.1:{int(stamp[:4], 16)}",
+    }, "CLI does not pass explicit client options into SDK factory"
 
 
 def test_cli_cannot_fail_to_show_help_for_context_ads() -> None:
     """Help output should still be reachable for nested ads commands."""
     with pytest.raises(SystemExit) as error:
         execute(["context", "ads", "--help"])
-    assert error.value.code == 0, "CLI help output unexpectedly does not exit with success"
+    assert error.value.code == 0, (
+        "CLI help output unexpectedly does not exit with success"
+    )
 
 
 def test_cli_cannot_fail_to_show_help_for_direct_commands() -> None:
     """Help output should still be reachable for direct commands."""
     with pytest.raises(SystemExit) as error:
         execute(["direct", "--help"])
-    assert error.value.code == 0, "CLI help output unexpectedly does not exit with success for direct command tree"
+    assert error.value.code == 0, (
+        "CLI help output unexpectedly does not exit with success for direct command tree"
+    )
 
 
-def test_cli_displays_keyword_option_for_direct_ads(capsys: pytest.CaptureFixture[str]) -> None:
+def test_cli_displays_keyword_option_for_direct_ads(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     """Direct ads help cannot miss the keyword lookup option."""
     with pytest.raises(SystemExit):
         execute(["direct", "ads", "--help"])
     output = capsys.readouterr().out
-    assert "--keyword" in output and "--kid" in output, "Direct ads help unexpectedly does not show both kid and keyword options"
+    assert "--keyword" in output and "--kid" in output, (
+        "Direct ads help unexpectedly does not show both kid and keyword options"
+    )
 
 
-def test_cli_displays_help_in_russian_for_context_level(capsys: pytest.CaptureFixture[str]) -> None:
+def test_cli_displays_help_in_russian_for_context_level(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     """Help output cannot remain partially English."""
     with pytest.raises(SystemExit):
         execute(["context", "--help"])
     output = capsys.readouterr().out
-    assert "использование:" in output and "позиционные аргументы:" in output and "опции:" in output, "CLI help unexpectedly is not translated to Russian"
+    assert (
+        "использование:" in output
+        and "позиционные аргументы:" in output
+        and "опции:" in output
+    ), "CLI help unexpectedly is not translated to Russian"
 
 
 @pytest.mark.parametrize(
     ("args", "tokens"),
     [
-        (["context", "concurents", "--help"], ("Поля ответа:", "pagesinindex", "adkeyscnt", "theme")),
-        (["context", "keywords", "list", "--help"], ("Поля ответа:", "word", "serpf", "aid")),
-        (["context", "keywords", "byads", "--help"], ("Поля ответа:", "word", "superwsk", "serp")),
-        (["context", "ads", "retrieve", "--help"], ("Поля ответа:", "keyscnt", "legal", "links")),
-        (["context", "ads", "links", "--help"], ("Поля ответа:", "links", "data", "total")),
-        (["context", "ads", "facts", "--help"], ("Поля ответа:", "facts", "data", "total")),
-        (["direct", "domain", "--help"], ("Поля ответа:", "keys_count", "updated_at", "uuid")),
-        (["direct", "ads", "--help"], ("Поля ответа:", "keys_count", "updated_at", "uuid")),
+        (
+            ["context", "concurents", "--help"],
+            ("Поля ответа:", "pagesinindex", "adkeyscnt", "theme"),
+        ),
+        (
+            ["context", "keywords", "list", "--help"],
+            ("Поля ответа:", "word", "serpf", "aid"),
+        ),
+        (
+            ["context", "keywords", "byads", "--help"],
+            ("Поля ответа:", "word", "superwsk", "serp"),
+        ),
+        (
+            ["context", "ads", "retrieve", "--help"],
+            ("Поля ответа:", "keyscnt", "legal", "links"),
+        ),
+        (
+            ["context", "ads", "links", "--help"],
+            ("Поля ответа:", "links", "data", "total"),
+        ),
+        (
+            ["context", "ads", "facts", "--help"],
+            ("Поля ответа:", "facts", "data", "total"),
+        ),
+        (
+            ["direct", "domain", "--help"],
+            ("Поля ответа:", "keys_count", "updated_at", "uuid"),
+        ),
+        (
+            ["direct", "ads", "--help"],
+            ("Поля ответа:", "keys_count", "updated_at", "uuid"),
+        ),
     ],
 )
 def test_cli_displays_field_descriptions_in_help_for_each_command(
@@ -285,7 +343,9 @@ def test_cli_displays_field_descriptions_in_help_for_each_command(
     with pytest.raises(SystemExit):
         execute(args)
     output = capsys.readouterr().out
-    assert all(token in output for token in tokens), "CLI help unexpectedly does not show field description glossary for the selected command"
+    assert all(token in output for token in tokens), (
+        "CLI help unexpectedly does not show field description glossary for the selected command"
+    )
 
 
 def test_cli_install_skills_creates_skill_files_in_current_directory(
@@ -315,14 +375,21 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         and "keysso-cli direct domain --domain <домен>" in skill_text
         and "keysso-cli direct ads --kid <id>" in skill_text
         and "keysso-cli direct ads --keyword <фраза>" in skill_text
-        and "keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25" in reference_text
-        and "keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25" in reference_text
-        and "keysso-cli direct ads --keyword \"пластиковые окна\" --base msk --page 1 --per-page 25" in reference_text
-    ), "Install command unexpectedly does not create the expected skill files in current directory"
+        and "keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25"
+        in reference_text
+        and "keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25"
+        in reference_text
+        and 'keysso-cli direct ads --keyword "пластиковые окна" --base msk --page 1 --per-page 25'
+        in reference_text
+    ), (
+        "Install command unexpectedly does not create the expected skill files in current directory"
+    )
 
 
 def test_cli_install_cannot_run_without_skills_flag() -> None:
     """Install command cannot accept execution without explicit target flag."""
     with pytest.raises(SystemExit) as error:
         execute(["install"], env={})
-    assert error.value.code == 2, "Install command unexpectedly does not fail without --skills"
+    assert error.value.code == 2, (
+        "Install command unexpectedly does not fail without --skills"
+    )

@@ -7,7 +7,6 @@ from typing import Any
 
 from keysso_cli.query import add_domain_option, add_query_options, collect_query
 
-
 DIRECT_DOMAIN_FIELDS = """Поля ответа:
   current_page  — текущая страница
   per_page      — записей на странице
@@ -63,7 +62,9 @@ def add_ads_parser(direct_commands: Any) -> None:
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--kid", type=int, help="Идентификатор фразы")
-    group.add_argument("--keyword", help="Поисковая фраза для автоматического поиска идентификатора")
+    group.add_argument(
+        "--keyword", help="Поисковая фраза для автоматического поиска идентификатора"
+    )
     add_query_options(parser)
     parser.set_defaults(action="direct.ads")
 
@@ -92,6 +93,8 @@ def invoke(client: Any, args: argparse.Namespace) -> Any:
             dashboard = simple.retrieve_keyword_dashboard(**payload)
             kid = dashboard.id
         if kid is None:
-            raise ValueError(f"Keyword lookup returned empty identifier for keyword: {args.keyword}")
+            raise ValueError(
+                f"Keyword lookup returned empty identifier for keyword: {args.keyword}"
+            )
         return direct.retrieve_ads(kid=int(kid), **query)
     raise ValueError(f"Unsupported action: {args.action}")

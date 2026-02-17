@@ -7,7 +7,6 @@ from typing import Any
 
 from keysso_cli.query import add_domain_option, add_query_options, collect_query
 
-
 CONCURENTS_FIELDS = """Поля ответа:
   current_page  — текущая страница
   per_page      — записей на странице
@@ -152,13 +151,17 @@ def add_keywords_byads_parser(keyword_commands: Any) -> None:
     )
     add_domain_option(parser)
     add_query_options(parser)
-    parser.add_argument("--ads-id", required=True, dest="ads_id", help="Идентификатор объявления")
+    parser.add_argument(
+        "--ads-id", required=True, dest="ads_id", help="Идентификатор объявления"
+    )
     parser.set_defaults(action="keywords.byads")
 
 
 def add_keywords_parser(context_commands: Any) -> None:
     """Attach the keywords parser tree."""
-    parser = context_commands.add_parser("keywords", help="Показать ключевые слова из объявлений домена")
+    parser = context_commands.add_parser(
+        "keywords", help="Показать ключевые слова из объявлений домена"
+    )
     keyword_commands = parser.add_subparsers(dest="keyword_command", required=True)
     add_keywords_list_parser(keyword_commands)
     add_keywords_byads_parser(keyword_commands)
@@ -174,7 +177,11 @@ def add_ads_retrieve_parser(ad_commands: Any) -> None:
     )
     add_domain_option(parser)
     add_query_options(parser)
-    parser.add_argument("--full", action="store_true", help="Добавить массив ключевых слов для каждого объявления")
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Добавить массив ключевых слов для каждого объявления",
+    )
     parser.set_defaults(action="ads.retrieve")
 
 
@@ -206,7 +213,9 @@ def add_ads_facts_parser(ad_commands: Any) -> None:
 
 def add_ads_parser(context_commands: Any) -> None:
     """Attach the ads parser tree."""
-    parser = context_commands.add_parser("ads", help="Показать объявления и их агрегированные элементы")
+    parser = context_commands.add_parser(
+        "ads", help="Показать объявления и их агрегированные элементы"
+    )
     ad_commands = parser.add_subparsers(dest="ad_command", required=True)
     add_ads_retrieve_parser(ad_commands)
     add_ads_links_parser(ad_commands)
@@ -215,7 +224,9 @@ def add_ads_parser(context_commands: Any) -> None:
 
 def add_parser(commands: Any) -> None:
     """Attach the context parser tree."""
-    parser = commands.add_parser("context", help="Отчеты по контекстной рекламе для домена")
+    parser = commands.add_parser(
+        "context", help="Отчеты по контекстной рекламе для домена"
+    )
     context_commands = parser.add_subparsers(dest="context_command", required=True)
     add_concurents_parser(context_commands)
     add_keywords_parser(context_commands)
@@ -231,7 +242,9 @@ def invoke(client: Any, args: argparse.Namespace) -> Any:
     if args.action == "keywords.list":
         return context.keywords.list(domain=args.domain, **query)
     if args.action == "keywords.byads":
-        return context.keywords.retrieve_byads(domain=args.domain, ads_id=args.ads_id, **query)
+        return context.keywords.retrieve_byads(
+            domain=args.domain, ads_id=args.ads_id, **query
+        )
     if args.action == "ads.retrieve":
         payload = {"domain": args.domain, **query}
         if args.full:

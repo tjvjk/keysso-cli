@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-
 SKILL_TEMPLATE = """---
 name: keysso-cli
 description: Скилл для работы со всем сервисом Keys.so — сервисом анализа конкурентов в SEO и PPC. Используйте skill, когда нужно собрать команды, подобрать параметры, интерпретировать ответы API и выстроить рабочий процесс через локальную команду keysso-cli.
