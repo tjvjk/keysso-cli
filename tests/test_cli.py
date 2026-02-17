@@ -168,3 +168,26 @@ def test_cli_displays_help_in_russian_for_context_level(capsys: pytest.CaptureFi
         execute(["context", "--help"])
     output = capsys.readouterr().out
     assert "использование:" in output and "позиционные аргументы:" in output and "опции:" in output, "CLI help unexpectedly is not translated to Russian"
+
+
+@pytest.mark.parametrize(
+    ("args", "tokens"),
+    [
+        (["context", "concurents", "--help"], ("Поля ответа:", "pagesinindex", "adkeyscnt", "theme")),
+        (["context", "keywords", "list", "--help"], ("Поля ответа:", "word", "serpf", "aid")),
+        (["context", "keywords", "byads", "--help"], ("Поля ответа:", "word", "superwsk", "serp")),
+        (["context", "ads", "retrieve", "--help"], ("Поля ответа:", "keyscnt", "legal", "links")),
+        (["context", "ads", "links", "--help"], ("Поля ответа:", "links", "data", "total")),
+        (["context", "ads", "facts", "--help"], ("Поля ответа:", "facts", "data", "total")),
+    ],
+)
+def test_cli_displays_field_descriptions_in_help_for_each_command(
+    args: list[str],
+    tokens: tuple[str, ...],
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Command help cannot miss response field descriptions."""
+    with pytest.raises(SystemExit):
+        execute(args)
+    output = capsys.readouterr().out
+    assert all(token in output for token in tokens), "CLI help unexpectedly does not show field description glossary for the selected command"

@@ -33,3 +33,17 @@ KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context ads links --domain 
 ```sh
 KEYSSO_API_KEY="ваш-токен" uv run keysso-cli context ads facts --domain пример.рф --base msk
 ```
+
+```sh
+uv run keysso-cli context concurents --help
+```
+
+Для расшифровки полей ответа используйте `--help` у каждой команды:
+
+```sh
+uv run keysso-cli context keywords list --help
+uv run keysso-cli context keywords byads --help
+uv run keysso-cli context ads retrieve --help
+uv run keysso-cli context ads links --help
+uv run keysso-cli context ads facts --help
+```

@@ -12,11 +12,120 @@ from typing import Any, Callable
 from keysso import Keysso
 
 
+CONCURENTS_FIELDS = """Поля ответа:
+  current_page  — текущая страница
+  per_page      — записей на странице
+  last_page     — последняя страница
+  total         — всего записей
+  data          — массив записей по конкурентам
+  id            — идентификатор домена
+  name          — имя домена
+  perc          — степень похожести домена (% общих ключей)
+  theme         — тематичность домена (% ключей анализируемого домена в ключах домена)
+  cnt           — общих ключей в топ-50
+  it1           — запросов в топ-1
+  it3           — запросов в топ-3
+  it5           — запросов в топ-5
+  it10          — запросов в топ-10
+  it50          — запросов в топ-50
+  pagesinindex  — количество страниц сайта в выдаче
+  vis           — оценка трафика с поиска
+  adscnt        — количество объявлений в контексте
+  adkeyscnt     — количество запросов в контексте
+  adtraf        — оценка трафика из контекста
+  adcost        — оценка бюджета контекста"""
+
+
+KEYWORDS_LIST_FIELDS = """Поля ответа:
+  current_page  — текущая страница
+  per_page      — записей на странице
+  last_page     — последняя страница
+  total         — всего записей
+  data          — массив записей по ключевым словам
+  id            — идентификатор фразы
+  word          — ключевая фраза
+  ws            — базовая частотность
+  wsk           — очень точная частотность
+  pos           — позиция в контексте
+  avbid         — средняя цена клика
+  sr            — блок размещения объявлений (1 — премиум, 0 — остальные)
+  aid           — идентификатор объявления
+  adscnt        — количество объявлений в контексте
+  header        — заголовок объявления
+  txt           — текст объявления
+  url           — URL объявления
+  docs          — количество документов в выдаче
+  numwords      — количество слов в запросе
+  isgeo         — является топонимом
+  isquest       — является вопросом
+  serpf         — дата изменения позиции"""
+
+
+KEYWORDS_BYADS_FIELDS = """Поля ответа:
+  current_page  — текущая страница
+  per_page      — записей на странице
+  last_page     — последняя страница
+  total         — всего записей
+  data          — массив ключевых слов выбранного объявления
+  word          — ключевая фраза
+  ws            — базовая частотность
+  wsk           — очень точная частотность
+  superwsk      — суперточная частотность
+  pos           — позиция в контексте
+  avbid         — средняя цена клика
+  sr            — блок размещения объявлений (1 — премиум, 0 — остальные)
+  adscnt        — количество объявлений в контексте
+  header        — заголовок объявления
+  txt           — текст объявления
+  docs          — количество документов в выдаче
+  numwords      — количество слов в запросе
+  isgeo         — является топонимом
+  isquest       — является вопросом
+  serp          — дата обновления"""
+
+
+ADS_RETRIEVE_FIELDS = """Поля ответа:
+  current_page  — текущая страница
+  per_page      — записей на странице
+  last_page     — последняя страница
+  total         — всего записей
+  data          — массив объявлений
+  id            — идентификатор объявления
+  header        — заголовок объявления
+  txt           — текст объявления
+  links         — массив быстрых ссылок
+  facts         — массив фактов
+  keyscnt       — количество запросов
+  keys          — массив ключевых слов (доступно при --full)
+  url           — URL объявления
+  legal         — рекламодатель
+  serp          — дата обновления"""
+
+
+ADS_LINKS_FIELDS = """Поля ответа:
+  current_page  — текущая страница
+  per_page      — записей на странице
+  last_page     — последняя страница
+  total         — всего записей
+  data          — массив записей с уникальными ссылками
+  links         — уникальные ссылки"""
+
+
+ADS_FACTS_FIELDS = """Поля ответа:
+  current_page  — текущая страница
+  per_page      — записей на странице
+  last_page     — последняя страница
+  total         — всего записей
+  data          — массив записей с уникальными фактами
+  facts         — уникальные факты"""
+
+
 class RussianArgumentParser(argparse.ArgumentParser):
     """ArgumentParser with Russian help output."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs["add_help"] = False
+        kwargs.setdefault("formatter_class", argparse.RawTextHelpFormatter)
         super().__init__(*args, **kwargs)
         self._positionals.title = "позиционные аргументы"
         self._optionals.title = "опции"
@@ -61,33 +170,60 @@ def build_parser() -> argparse.ArgumentParser:
     concurents = context_commands.add_parser(
         "concurents",
         help="Показать конкурентов домена в контекстной рекламе",
+        description="Список конкурентов домена в контекстной рекламе",
+        epilog=CONCURENTS_FIELDS,
     )
     add_domain_option(concurents)
     add_query_options(concurents)
     concurents.set_defaults(action="concurents")
     keywords = context_commands.add_parser("keywords", help="Показать ключевые слова из объявлений домена")
     keyword_commands = keywords.add_subparsers(dest="keyword_command", required=True)
-    keyword_list = keyword_commands.add_parser("list", help="Список ключевых слов контекстной рекламы домена")
+    keyword_list = keyword_commands.add_parser(
+        "list",
+        help="Список ключевых слов контекстной рекламы домена",
+        description="Список ключевых слов домена в контекстной рекламе",
+        epilog=KEYWORDS_LIST_FIELDS,
+    )
     add_domain_option(keyword_list)
     add_query_options(keyword_list)
     keyword_list.set_defaults(action="keywords.list")
-    keyword_byads = keyword_commands.add_parser("byads", help="Ключевые слова для конкретного объявления")
+    keyword_byads = keyword_commands.add_parser(
+        "byads",
+        help="Ключевые слова для конкретного объявления",
+        description="Ключевые слова, по которым показывается выбранное объявление",
+        epilog=KEYWORDS_BYADS_FIELDS,
+    )
     add_domain_option(keyword_byads)
     add_query_options(keyword_byads)
     keyword_byads.add_argument("--ads-id", required=True, dest="ads_id", help="Идентификатор объявления")
     keyword_byads.set_defaults(action="keywords.byads")
     ads = context_commands.add_parser("ads", help="Показать объявления и их агрегированные элементы")
     ad_commands = ads.add_subparsers(dest="ad_command", required=True)
-    ad_retrieve = ad_commands.add_parser("retrieve", help="Список объявлений домена в контекстной рекламе")
+    ad_retrieve = ad_commands.add_parser(
+        "retrieve",
+        help="Список объявлений домена в контекстной рекламе",
+        description="Список объявлений домена в контекстной рекламе",
+        epilog=ADS_RETRIEVE_FIELDS,
+    )
     add_domain_option(ad_retrieve)
     add_query_options(ad_retrieve)
     ad_retrieve.add_argument("--full", action="store_true", help="Добавить массив ключевых слов для каждого объявления")
     ad_retrieve.set_defaults(action="ads.retrieve")
-    ad_links = ad_commands.add_parser("links", help="Уникальные ссылки из объявлений домена")
+    ad_links = ad_commands.add_parser(
+        "links",
+        help="Уникальные ссылки из объявлений домена",
+        description="Список уникальных ссылок, найденных в объявлениях домена",
+        epilog=ADS_LINKS_FIELDS,
+    )
     add_domain_option(ad_links)
     add_query_options(ad_links)
     ad_links.set_defaults(action="ads.links")
-    ad_facts = ad_commands.add_parser("facts", help="Уникальные факты из объявлений домена")
+    ad_facts = ad_commands.add_parser(
+        "facts",
+        help="Уникальные факты из объявлений домена",
+        description="Список уникальных фактов, найденных в объявлениях домена",
+        epilog=ADS_FACTS_FIELDS,
+    )
     add_domain_option(ad_facts)
     add_query_options(ad_facts)
     ad_facts.set_defaults(action="ads.facts")
