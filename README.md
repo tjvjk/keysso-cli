@@ -5,6 +5,16 @@
 - Общая документация API: https://apidoc.keys.so/
 - Поддержаны разделы «Контекстная реклама» и «Реклама» (Yandex Direct): https://apidoc.keys.so/
 
+## Быстрый старт
+
+```sh
+git clone https://github.com/tjvjk/keysso-cli.git
+cd keysso-cli
+uv tool install --editable .
+export KEYSSO_API_KEY="ваш-токен"
+keysso-cli --help
+```
+
 ## Установка skill в текущей директории
 
 Команда ниже создает `.claude/skills/keysso-cli` в текущем каталоге и добавляет:
@@ -22,57 +32,26 @@ keysso-cli install --skills
 export KEYSSO_API_KEY="ваш-токен"
 ```
 
-```sh
-keysso-cli context concurents --domain пример.рф --base msk
-```
+## Описание команд
 
-```sh
-keysso-cli context keywords list --domain пример.рф --base msk --page 1 --per-page 25
-```
+### Контекстная реклама
 
-```sh
-keysso-cli context keywords byads --domain пример.рф --ads-id 42 --base msk
-```
+Доступные команды раздела `context`:
 
-```sh
-keysso-cli context ads retrieve --domain пример.рф --base msk --full
-```
+- `keysso-cli context concurents --domain <домен>` # конкуренты домена в контекстной рекламе
+- `keysso-cli context keywords list --domain <домен>` # ключевые слова домена в контекстной рекламе
+- `keysso-cli context keywords byads --domain <домен> --ads-id <id>` # ключевые слова конкретного объявления
+- `keysso-cli context ads retrieve --domain <домен>` # объявления домена
+- `keysso-cli context ads links --domain <домен>` # уникальные ссылки из объявлений
+- `keysso-cli context ads facts --domain <домен>` # уникальные факты из объявлений
 
-```sh
-keysso-cli context ads links --domain пример.рф --base msk
-```
+### Яндекс Директ
 
-```sh
-keysso-cli context ads facts --domain пример.рф --base msk
-```
+Доступные команды раздела `direct`:
 
-```sh
-keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25
-```
-
-```sh
-keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25
-```
-
-```sh
-keysso-cli direct ads --keyword "пластиковые окна" --base msk --page 1 --per-page 25
-```
-
-```sh
-keysso-cli context concurents --help
-```
-
-Для расшифровки полей ответа используйте `--help` у каждой команды:
-
-```sh
-keysso-cli context keywords list --help
-keysso-cli context keywords byads --help
-keysso-cli context ads retrieve --help
-keysso-cli context ads links --help
-keysso-cli context ads facts --help
-keysso-cli direct domain --help
-keysso-cli direct ads --help
-```
+- `keysso-cli direct domain --domain <домен>` # объявления Яндекс Директ по домену
+- `keysso-cli direct ads --kid <id>` # объявления Яндекс Директ по идентификатору фразы
+- `keysso-cli direct ads --keyword <фраза>` # объявления Яндекс Директ по поисковой фразе
 
 ## Региональные базы (`--base`)
 
