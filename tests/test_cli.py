@@ -103,8 +103,6 @@ def test_cli_routes_context_commands_to_expected_sdk_calls(
     args = [
         "--api-key",
         f"токен-{stamp}",
-        "report",
-        "simple",
         "context",
         *tail,
         "--domain",
@@ -148,8 +146,6 @@ def test_cli_passes_client_options_to_sdk_factory() -> None:
             f"токен-{stamp}",
             "--base-url",
             f"http://127.0.0.1:{int(stamp[:4], 16)}",
-            "report",
-            "simple",
             "context",
             "concurents",
             "--domain",
@@ -162,5 +158,5 @@ def test_cli_passes_client_options_to_sdk_factory() -> None:
 def test_cli_cannot_fail_to_show_help_for_context_ads() -> None:
     """Help output should still be reachable for nested ads commands."""
     with pytest.raises(SystemExit) as error:
-        execute(["report", "simple", "context", "ads", "--help"])
+        execute(["context", "ads", "--help"])
     assert error.value.code == 0, "CLI help output unexpectedly does not exit with success"
