@@ -18,6 +18,9 @@ def test_openapi_schema_contains_supported_paths_used_by_cli() -> None:
     supported = {
         "/report/simple/domain_dashboard",
         "/report/simple/keyword_dashboard",
+        "/report/simple/domain_ad_history",
+        "/report/simple/similarkeys",
+        "/report/simple/top_domain_visibility",
         "/report/simple/context/concurents",
         "/report/simple/context/keywords",
         "/report/simple/context/keywords/byads",

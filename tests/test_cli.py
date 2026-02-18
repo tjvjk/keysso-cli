@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import io
+import json
 import sys
 
 import pytest
 
-from keysso_cli.cli import execute, main
+from keysso_cli.cli import emit, execute, main
 
 
 def test_cli_displays_help_in_russian_for_root_level(
@@ -43,4 +45,25 @@ def test_cli_main_exits_with_success_for_install_skills(
         main()
     assert error.value.code == 0, (
         "CLI main entrypoint unexpectedly does not return success for install command"
+    )
+
+
+def test_cli_emit_cannot_break_when_model_to_json_fails() -> None:
+    """Emit cannot fail if SDK model JSON serialization raises."""
+
+    class BrokenPayload:
+        def to_json(self, indent: int = 2, warnings: bool = False) -> str:
+            raise RuntimeError("broken serializer")
+
+        def to_dict(
+            self,
+            mode: str = "json",
+            warnings: bool = False,
+        ) -> dict[str, str]:
+            return {"status": "ok"}
+
+    stream = io.StringIO()
+    emit(BrokenPayload(), stream)
+    assert json.loads(stream.getvalue()) == {"status": "ok"}, (
+        "Emit unexpectedly does not fallback to dictionary rendering when model JSON serialization fails"
     )
