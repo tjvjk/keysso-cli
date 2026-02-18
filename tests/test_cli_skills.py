@@ -23,10 +23,13 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
     skill = tmp_path / ".claude" / "skills" / "keysso-cli"
     skill_file = skill / "SKILL.md"
     reference = skill / "references" / "context-ads.md"
+    dashboard = skill / "references" / "dashboard.md"
     skill_text = skill_file.read_text(encoding="utf-8")
     reference_text = reference.read_text(encoding="utf-8")
+    dashboard_text = dashboard.read_text(encoding="utf-8")
     expected = {
         str(skill_file),
+        str(dashboard),
         str(reference),
     }
     assert (
@@ -34,10 +37,26 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         and payload["path"] == str(skill)
         and set(payload["files"]) == expected
         and skill_file.exists()
+        and dashboard.exists()
         and reference.exists()
+        and "keysso-cli dashboard domain --domain <домен>" in skill_text
+        and "keysso-cli dashboard keyword --keyword <фраза>" in skill_text
         and "keysso-cli direct domain --domain <домен>" in skill_text
         and "keysso-cli direct ads --kid <id>" in skill_text
         and "keysso-cli direct ads --keyword <фраза>" in skill_text
+        and "keysso-cli dashboard domain --domain пример.рф --base msk"
+        in dashboard_text
+        and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'
+        in dashboard_text
+        and "aiAnswersCnt" in dashboard_text
+        and "aiState" in dashboard_text
+        and "adkeyscnt" in dashboard_text
+        and "similar" in dashboard_text
+        and "isquest" in dashboard_text
+        and "keysso-cli dashboard domain --domain пример.рф --base msk"
+        not in reference_text
+        and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'
+        not in reference_text
         and "keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25"
         in reference_text
         and "keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25"
