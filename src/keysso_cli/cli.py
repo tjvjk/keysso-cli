@@ -95,13 +95,46 @@ def invoke(client: Any, args: argparse.Namespace) -> Any:
     raise ValueError(f"Unsupported command: {args.command}")
 
 
+def render(payload: Any) -> str:
+    """Render payload into JSON text with robust model fallbacks."""
+    if hasattr(payload, "to_json"):
+        method = payload.to_json
+        try:
+            try:
+                return method(indent=2, warnings=False)
+            except TypeError:
+                return method(indent=2)
+        except Exception:
+            rebuild = getattr(payload.__class__, "model_rebuild", None)
+            if callable(rebuild):
+                try:
+                    rebuild(force=True)
+                    try:
+                        return method(indent=2, warnings=False)
+                    except TypeError:
+                        return method(indent=2)
+                except Exception:
+                    pass
+            to_dict = getattr(payload, "to_dict", None)
+            if callable(to_dict):
+                try:
+                    body = to_dict(mode="json", warnings=False)
+                except TypeError:
+                    body = to_dict(mode="json")
+                return json.dumps(body, ensure_ascii=False, indent=2, default=str)
+            model_dump = getattr(payload, "model_dump", None)
+            if callable(model_dump):
+                try:
+                    body = model_dump(mode="json", warnings=False)
+                except TypeError:
+                    body = model_dump(mode="json")
+                return json.dumps(body, ensure_ascii=False, indent=2, default=str)
+    return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
+
+
 def emit(payload: Any, stream: Any) -> None:
     """Write one payload to the output stream as JSON."""
-    if hasattr(payload, "to_json"):
-        stream.write(payload.to_json(indent=2))
-        stream.write("\n")
-        return
-    stream.write(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+    stream.write(render(payload))
     stream.write("\n")
 
 

@@ -51,7 +51,9 @@ def test_cli_routes_dashboard_keyword_command_to_expected_sdk_call(
             "msk",
         ]
     )
-    assert box["calls"] == [("keyword_dashboard", {"keyword": keyword, "base": "msk"})], (
+    assert box["calls"] == [
+        ("keyword_dashboard", {"keyword": keyword, "base": "msk"})
+    ], (
         "CLI unexpectedly does not map dashboard keyword command arguments into SDK call parameters"
     )
 
