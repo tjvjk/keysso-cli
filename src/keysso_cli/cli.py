@@ -13,6 +13,8 @@ from keysso import Keysso
 
 from keysso_cli.context import add_parser as add_context_parser
 from keysso_cli.context import invoke as invoke_context
+from keysso_cli.dashboard import add_parser as add_dashboard_parser
+from keysso_cli.dashboard import invoke as invoke_dashboard
 from keysso_cli.direct import add_parser as add_direct_parser
 from keysso_cli.direct import invoke as invoke_direct
 from keysso_cli.skills import install_skills
@@ -64,7 +66,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the full parser tree."""
     parser = RussianArgumentParser(
         prog="keysso-cli",
-        description="CLI для отчетов по контекстной рекламе и Яндекс Директ в Keys.so",
+        description="CLI для отчетов дашборда, контекстной рекламы в Keys.so",
     )
     parser.add_argument(
         "--api-key", dest="api_key", help="Ключ API, по умолчанию из KEYSSO_API_KEY"
@@ -75,6 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(
         dest="command", required=True, parser_class=RussianArgumentParser
     )
+    add_dashboard_parser(commands)
     add_context_parser(commands)
     add_direct_parser(commands)
     add_install_parser(commands)
@@ -83,6 +86,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def invoke(client: Any, args: argparse.Namespace) -> Any:
     """Route parsed arguments to one SDK call."""
+    if args.command == "dashboard":
+        return invoke_dashboard(client, args)
     if args.command == "context":
         return invoke_context(client, args)
     if args.command == "direct":

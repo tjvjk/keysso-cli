@@ -6,9 +6,14 @@ import argparse
 from typing import Any
 
 
+def add_base_option(parser: argparse.ArgumentParser) -> None:
+    """Attach optional base option."""
+    parser.add_argument("--base", help="Региональная база")
+
+
 def add_query_options(parser: argparse.ArgumentParser) -> None:
     """Attach shared query options."""
-    parser.add_argument("--base", help="Региональная база")
+    add_base_option(parser)
     parser.add_argument("--filter", help="Фильтр запроса")
     parser.add_argument("--page", type=int, help="Номер страницы")
     parser.add_argument("--per-page", dest="per_page", type=int, help="Размер страницы")

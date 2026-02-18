@@ -3,7 +3,7 @@
 `keysso-cli` — CLI-клиент для работы с Keysso API из терминала.
 
 - Общая документация API: https://apidoc.keys.so/
-- Поддержаны разделы «Контекстная реклама» и «Реклама» (Yandex Direct): https://apidoc.keys.so/
+- Поддержаны разделы «Дашборд», «Контекстная реклама» и «Реклама» (Yandex Direct): https://apidoc.keys.so/
 
 ## Быстрый старт
 
@@ -33,6 +33,13 @@ export KEYSSO_API_KEY="ваш-токен"
 ```
 
 ## Описание команд
+
+### Дашборд
+
+Доступные команды раздела `dashboard`:
+
+- `keysso-cli dashboard domain --domain <домен>` # сводка по домену
+- `keysso-cli dashboard keyword --keyword <фраза>` # сводка по ключевой фразе
 
 ### Контекстная реклама
 

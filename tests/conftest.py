@@ -42,9 +42,32 @@ def make_factory() -> tuple[dict[str, Any], Any]:
         return call
 
     def dashboard_method(**kwargs: Any) -> Any:
-        """Capture keyword dashboard lookup and return keyword id."""
+        """Capture keyword dashboard lookup and return keyword payload."""
         calls.append(("keyword_dashboard", kwargs))
-        return SimpleNamespace(id=17222067)
+        payload = {
+            "id": 17222067,
+            "word": str(kwargs.get("keyword", "")),
+        }
+        return SimpleNamespace(
+            id=payload["id"],
+            to_json=lambda indent=2: json.dumps(
+                payload, ensure_ascii=False, indent=indent
+            ),
+        )
+
+    def domain_dashboard_method(**kwargs: Any) -> Any:
+        """Capture domain dashboard lookup and return domain payload."""
+        calls.append(("domain_dashboard", kwargs))
+        payload = {
+            "id": 29918348,
+            "name": str(kwargs.get("domain", "")),
+        }
+        return SimpleNamespace(
+            id=payload["id"],
+            to_json=lambda indent=2: json.dumps(
+                payload, ensure_ascii=False, indent=indent
+            ),
+        )
 
     context = SimpleNamespace(
         retrieve_concurents=make_method("concurents"),
@@ -66,6 +89,7 @@ def make_factory() -> tuple[dict[str, Any], Any]:
         simple=SimpleNamespace(
             context=context,
             direct=direct,
+            retrieve_domain_dashboard=domain_dashboard_method,
             retrieve_keyword_dashboard=dashboard_method,
         )
     )
