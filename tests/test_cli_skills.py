@@ -48,6 +48,11 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         in dashboard_text
         and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'
         in dashboard_text
+        and "aiAnswersCnt" in dashboard_text
+        and "aiState" in dashboard_text
+        and "adkeyscnt" in dashboard_text
+        and "similar" in dashboard_text
+        and "isquest" in dashboard_text
         and "keysso-cli dashboard domain --domain пример.рф --base msk"
         not in reference_text
         and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'

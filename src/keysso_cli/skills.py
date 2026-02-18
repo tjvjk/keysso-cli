@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from keysso_cli.dashboard import DASHBOARD_DOMAIN_FIELDS, DASHBOARD_KEYWORD_FIELDS
+
 SKILL_TEMPLATE = """---
 name: keysso-cli
 description: Скилл для работы со всем сервисом Keys.so — сервисом анализа конкурентов в SEO и PPC. Используйте skill, когда нужно собрать команды, подобрать параметры, интерпретировать ответы API и выстроить рабочий процесс через локальную команду keysso-cli.
@@ -169,7 +171,7 @@ keysso-cli
 5. Для анализа Яндекс Директ используйте `direct domain` и `direct ads`
 """
 
-DASHBOARD_REFERENCE = """# Раздел «Дашборд» в keysso-cli
+DASHBOARD_REFERENCE = f"""# Раздел «Дашборд» в keysso-cli
 
 Этот файл описывает структуру `keysso-cli` для раздела `dashboard`.
 
@@ -200,10 +202,22 @@ keysso-cli
 - Назначение: получить сводные данные по домену
 - Пример: `keysso-cli dashboard domain --domain пример.рф --base msk`
 
+Поля ответа API:
+
+```text
+{DASHBOARD_DOMAIN_FIELDS}
+```
+
 ### `dashboard keyword`
 
 - Назначение: получить сводные данные по ключевой фразе
 - Пример: `keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk`
+
+Поля ответа API:
+
+```text
+{DASHBOARD_KEYWORD_FIELDS}
+```
 
 ## Практический рабочий процесс
 
