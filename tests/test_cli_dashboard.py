@@ -10,42 +10,156 @@ import pytest
 from keysso_cli.cli import execute
 
 
-@pytest.mark.parametrize(
-    ("tail", "action", "with_domain", "with_keyword"),
-    [
-        (["domain"], "domain_dashboard", True, False),
-        (["keyword"], "keyword_dashboard", False, True),
-    ],
-)
-def test_cli_routes_dashboard_commands_to_expected_sdk_calls(
-    tail: list[str],
-    action: str,
-    with_domain: bool,
-    with_keyword: bool,
+def test_cli_routes_dashboard_domain_command_to_expected_sdk_call(
     run_cli: Callable[[list[str]], dict[str, Any]],
 ) -> None:
-    """CLI cannot be trusted if dashboard route-to-method mapping changes."""
+    """CLI cannot be trusted if dashboard domain route-to-method mapping changes."""
     stamp = secrets.token_hex(4)
-    args = [
-        "--api-key",
-        f"токен-{stamp}",
-        "dashboard",
-        *tail,
-        "--base",
-        "msk",
-    ]
-    expected: dict[str, Any] = {"base": "msk"}
-    if with_domain:
-        domain = f"пример-{stamp}.рф"
-        args.extend(["--domain", domain])
-        expected["domain"] = domain
-    if with_keyword:
-        keyword = f"поисковая фраза {stamp}"
-        args.extend(["--keyword", keyword])
-        expected["keyword"] = keyword
-    box = run_cli(args)
-    assert box["calls"] == [(action, expected)], (
-        "CLI unexpectedly does not map dashboard command arguments into SDK call parameters"
+    domain = f"пример-{stamp}.рф"
+    box = run_cli(
+        [
+            "--api-key",
+            f"токен-{stamp}",
+            "dashboard",
+            "domain",
+            "--domain",
+            domain,
+            "--base",
+            "msk",
+        ]
+    )
+    assert box["calls"] == [("domain_dashboard", {"domain": domain, "base": "msk"})], (
+        "CLI unexpectedly does not map dashboard domain command arguments into SDK call parameters"
+    )
+
+
+def test_cli_routes_dashboard_keyword_command_to_expected_sdk_call(
+    run_cli: Callable[[list[str]], dict[str, Any]],
+) -> None:
+    """CLI cannot be trusted if dashboard keyword route-to-method mapping changes."""
+    stamp = secrets.token_hex(4)
+    keyword = f"поисковая фраза {stamp}"
+    box = run_cli(
+        [
+            "--api-key",
+            f"токен-{stamp}",
+            "dashboard",
+            "keyword",
+            "--keyword",
+            keyword,
+            "--base",
+            "msk",
+        ]
+    )
+    assert box["calls"] == [("keyword_dashboard", {"keyword": keyword, "base": "msk"})], (
+        "CLI unexpectedly does not map dashboard keyword command arguments into SDK call parameters"
+    )
+
+
+def test_cli_routes_dashboard_ad_history_command_to_expected_sdk_call(
+    run_cli: Callable[[list[str]], dict[str, Any]],
+) -> None:
+    """CLI cannot be trusted if dashboard ad-history route-to-method mapping changes."""
+    stamp = secrets.token_hex(4)
+    domain = f"пример-{stamp}.рф"
+    box = run_cli(
+        [
+            "--api-key",
+            f"токен-{stamp}",
+            "dashboard",
+            "ad-history",
+            "--domain",
+            domain,
+            "--base",
+            "msk",
+        ]
+    )
+    assert box["calls"] == [("domain_ad_history", {"domain": domain, "base": "msk"})], (
+        "CLI unexpectedly does not map dashboard ad-history command arguments into SDK call parameters"
+    )
+
+
+def test_cli_routes_dashboard_similarkeys_command_to_expected_sdk_call(
+    run_cli: Callable[[list[str]], dict[str, Any]],
+) -> None:
+    """CLI cannot be trusted if dashboard similarkeys route-to-method mapping changes."""
+    stamp = secrets.token_hex(4)
+    keyword = f"поисковая фраза {stamp}"
+    query = f"keyword:{stamp}"
+    box = run_cli(
+        [
+            "--api-key",
+            f"токен-{stamp}",
+            "dashboard",
+            "similarkeys",
+            "--keyword",
+            keyword,
+            "--base",
+            "msk",
+            "--filter",
+            query,
+            "--page",
+            "4",
+            "--per-page",
+            "12",
+            "--sort",
+            "wsk|asc",
+        ]
+    )
+    assert box["calls"] == [
+        (
+            "similarkeys",
+            {
+                "keyword": keyword,
+                "base": "msk",
+                "filter": query,
+                "page": 4,
+                "per_page": 12,
+                "sort": "wsk|asc",
+            },
+        )
+    ], (
+        "CLI unexpectedly does not map dashboard similarkeys command arguments into SDK call parameters"
+    )
+
+
+def test_cli_routes_dashboard_top_visibility_command_to_expected_sdk_call(
+    run_cli: Callable[[list[str]], dict[str, Any]],
+) -> None:
+    """CLI cannot be trusted if dashboard top-visibility route-to-method mapping changes."""
+    stamp = secrets.token_hex(4)
+    domain = f"пример-{stamp}.рф"
+    box = run_cli(
+        [
+            "--api-key",
+            f"токен-{stamp}",
+            "dashboard",
+            "top-visibility",
+            "--domain",
+            domain,
+            "--base",
+            "msk",
+            "--page",
+            "8",
+            "--per-page",
+            "15",
+            "--sort",
+            "topvis|asc",
+        ]
+    )
+    assert box["calls"] == [
+        (
+            "top_domain_visibility",
+            {
+                "domain": domain,
+                "base": "msk",
+                "page": 8,
+                "per_page": 15,
+                "sort": "topvis|asc",
+            },
+        )
+    ], (
+        "CLI unexpectedly does not map dashboard top-visibility command arguments into SDK call parameters"
     )
 
 
@@ -68,6 +182,18 @@ def test_cli_cannot_fail_to_show_help_for_dashboard_commands() -> None:
         (
             ["dashboard", "keyword", "--help"],
             ("Поля ответа:", "word", "similar", "isquest"),
+        ),
+        (
+            ["dashboard", "ad-history", "--help"],
+            ("Поля ответа:", "adCost", "adKeysCount", "adsCount"),
+        ),
+        (
+            ["dashboard", "similarkeys", "--help"],
+            ("Поля ответа:", "wizardscount", "kei", "current_page"),
+        ),
+        (
+            ["dashboard", "top-visibility", "--help"],
+            ("Поля ответа:", "topvis", "pagesinindex", "adkeyscnt"),
         ),
     ],
 )
@@ -126,4 +252,78 @@ def test_cli_e2e_dashboard_keyword_without_mocks(
     )
     assert "id" in payload and isinstance(payload.get("word"), str), (
         "Live dashboard keyword unexpectedly returns invalid payload"
+    )
+
+
+@pytest.mark.e2e
+def test_cli_e2e_dashboard_ad_history_without_mocks(
+    e2e_case: dict[str, Any],
+    run_live: Callable[[list[str], Mapping[str, str]], dict[str, Any]],
+) -> None:
+    """Live dashboard ad-history command cannot fail."""
+    payload = run_live(
+        [
+            "dashboard",
+            "ad-history",
+            "--domain",
+            e2e_case["domain"],
+            "--base",
+            e2e_case["base"],
+        ],
+        e2e_case["env"],
+    )
+    assert isinstance(payload, dict), (
+        "Live dashboard ad-history unexpectedly returns invalid payload"
+    )
+
+
+@pytest.mark.e2e
+def test_cli_e2e_dashboard_similarkeys_without_mocks(
+    e2e_case: dict[str, Any],
+    run_live: Callable[[list[str], Mapping[str, str]], dict[str, Any]],
+) -> None:
+    """Live dashboard similarkeys command cannot fail."""
+    payload = run_live(
+        [
+            "dashboard",
+            "similarkeys",
+            "--keyword",
+            e2e_case["keyword"],
+            "--base",
+            e2e_case["base"],
+            "--page",
+            "1",
+            "--per-page",
+            "5",
+        ],
+        e2e_case["env"],
+    )
+    assert "data" in payload and isinstance(payload["data"], list), (
+        "Live dashboard similarkeys unexpectedly returns invalid payload"
+    )
+
+
+@pytest.mark.e2e
+def test_cli_e2e_dashboard_top_visibility_without_mocks(
+    e2e_case: dict[str, Any],
+    run_live: Callable[[list[str], Mapping[str, str]], dict[str, Any]],
+) -> None:
+    """Live dashboard top-visibility command cannot fail."""
+    payload = run_live(
+        [
+            "dashboard",
+            "top-visibility",
+            "--domain",
+            e2e_case["domain"],
+            "--base",
+            e2e_case["base"],
+            "--page",
+            "1",
+            "--per-page",
+            "5",
+        ],
+        e2e_case["env"],
+    )
+    assert "data" in payload and isinstance(payload["data"], list), (
+        "Live dashboard top-visibility unexpectedly returns invalid payload"
     )

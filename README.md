@@ -20,7 +20,8 @@ keysso-cli --help
 Команда ниже создает `.claude/skills/keysso-cli` в текущем каталоге и добавляет:
 
 - `SKILL.md` с общим описанием skill
-- `references/context-ads.md` с подробным описанием раздела `context`
+- `references/dashboard.md` с подробным описанием раздела `dashboard`
+- `references/context-ads.md` с подробным описанием разделов `context` и `direct`
 
 ```sh
 keysso-cli install --skills
@@ -40,6 +41,9 @@ export KEYSSO_API_KEY="ваш-токен"
 
 - `keysso-cli dashboard domain --domain <домен>` # сводка по домену
 - `keysso-cli dashboard keyword --keyword <фраза>` # сводка по ключевой фразе
+- `keysso-cli dashboard ad-history --domain <домен>` # история рекламных метрик домена
+- `keysso-cli dashboard similarkeys --keyword <фраза>` # дополняющие фразы
+- `keysso-cli dashboard top-visibility --domain <домен>` # рейтинг сайтов по видимости
 
 ### Контекстная реклама
 

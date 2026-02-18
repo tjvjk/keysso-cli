@@ -13,7 +13,13 @@ from keysso_cli.context import (
     KEYWORDS_BYADS_FIELDS,
     KEYWORDS_LIST_FIELDS,
 )
-from keysso_cli.dashboard import DASHBOARD_DOMAIN_FIELDS, DASHBOARD_KEYWORD_FIELDS
+from keysso_cli.dashboard import (
+    DASHBOARD_AD_HISTORY_FIELDS,
+    DASHBOARD_DOMAIN_FIELDS,
+    DASHBOARD_KEYWORD_FIELDS,
+    DASHBOARD_SIMILARKEYS_FIELDS,
+    DASHBOARD_TOP_VISIBILITY_FIELDS,
+)
 from keysso_cli.direct import DIRECT_ADS_FIELDS, DIRECT_DOMAIN_FIELDS
 
 SKILL_TEMPLATE = """---
@@ -38,6 +44,9 @@ description: Скилл для работы со всем сервисом Keys.
 
 - `keysso-cli dashboard domain --domain <домен>` # сводка по домену
 - `keysso-cli dashboard keyword --keyword <фраза>` # сводка по ключевой фразе
+- `keysso-cli dashboard ad-history --domain <домен>` # история рекламных метрик домена
+- `keysso-cli dashboard similarkeys --keyword <фраза>` # дополняющие фразы
+- `keysso-cli dashboard top-visibility --domain <домен>` # рейтинг сайтов по видимости
 
 ## Контекстная реклама
 
@@ -244,13 +253,21 @@ keysso-cli
   dashboard
     domain
     keyword
+    ad-history
+    similarkeys
+    top-visibility
 ```
 
 ## Общие аргументы
 
 - `--domain` обязателен для `dashboard domain`
 - `--keyword` обязателен для `dashboard keyword`
+- `--domain` обязателен для `dashboard ad-history` и `dashboard top-visibility`
+- `--keyword` обязателен для `dashboard similarkeys`
 - `--base` региональная база (`msk`, `spb`, `zen`, `gru` и другие)
+- `--filter` фильтр запроса для `dashboard similarkeys`
+- `--page`, `--per-page` пагинация для `dashboard similarkeys` и `dashboard top-visibility`
+- `--sort` сортировка для `dashboard similarkeys` и `dashboard top-visibility`
 
 ## Команды и особенности
 
@@ -276,10 +293,46 @@ keysso-cli
 {DASHBOARD_KEYWORD_FIELDS}
 ```
 
+### `dashboard ad-history`
+
+- Назначение: получить историю рекламных метрик домена по месяцам
+- Пример: `keysso-cli dashboard ad-history --domain пример.рф --base msk`
+
+Поля ответа API:
+
+```text
+{DASHBOARD_AD_HISTORY_FIELDS}
+```
+
+### `dashboard similarkeys`
+
+- Назначение: получить список дополняющих фраз по исходной ключевой фразе
+- Пример: `keysso-cli dashboard similarkeys --keyword "пластиковые окна" --base msk --page 1 --per-page 25 --sort wsk|asc`
+
+Поля ответа API:
+
+```text
+{DASHBOARD_SIMILARKEYS_FIELDS}
+```
+
+### `dashboard top-visibility`
+
+- Назначение: получить рейтинг сайтов по видимости относительно домена
+- Пример: `keysso-cli dashboard top-visibility --domain пример.рф --base msk --page 1 --per-page 25 --sort topvis|asc`
+
+Поля ответа API:
+
+```text
+{DASHBOARD_TOP_VISIBILITY_FIELDS}
+```
+
 ## Практический рабочий процесс
 
 1. Сначала проверьте обзор домена через `dashboard domain`
 2. Для анализа конкретной фразы используйте `dashboard keyword`
+3. Для истории рекламных метрик используйте `dashboard ad-history`
+4. Для расширения семантики используйте `dashboard similarkeys`
+5. Для сравнения видимости используйте `dashboard top-visibility`
 """
 
 

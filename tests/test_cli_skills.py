@@ -46,6 +46,9 @@ def test_cli_install_skills_writes_dashboard_and_direct_commands_to_skill_templa
     assert (
         "keysso-cli dashboard domain --domain <домен>" in skill_text
         and "keysso-cli dashboard keyword --keyword <фраза>" in skill_text
+        and "keysso-cli dashboard ad-history --domain <домен>" in skill_text
+        and "keysso-cli dashboard similarkeys --keyword <фраза>" in skill_text
+        and "keysso-cli dashboard top-visibility --domain <домен>" in skill_text
         and "keysso-cli direct domain --domain <домен>" in skill_text
         and "keysso-cli direct ads --kid <id>" in skill_text
         and "keysso-cli direct ads --keyword <фраза>" in skill_text
@@ -63,11 +66,23 @@ def test_cli_install_skills_writes_dashboard_reference_examples_and_fields(
         "keysso-cli dashboard domain --domain пример.рф --base msk" in dashboard_text
         and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'
         in dashboard_text
+        and "keysso-cli dashboard ad-history --domain пример.рф --base msk"
+        in dashboard_text
+        and 'keysso-cli dashboard similarkeys --keyword "пластиковые окна" --base msk --page 1 --per-page 25 --sort wsk|asc'
+        in dashboard_text
+        and "keysso-cli dashboard top-visibility --domain пример.рф --base msk --page 1 --per-page 25 --sort topvis|asc"
+        in dashboard_text
         and "aiAnswersCnt" in dashboard_text
         and "aiState" in dashboard_text
         and "adkeyscnt" in dashboard_text
         and "similar" in dashboard_text
         and "isquest" in dashboard_text
+        and "adCost" in dashboard_text
+        and "adKeysCount" in dashboard_text
+        and "wizardscount" in dashboard_text
+        and "kei" in dashboard_text
+        and "topvis" in dashboard_text
+        and "pagesinindex" in dashboard_text
     ), (
         "Install command unexpectedly does not include dashboard docs in dashboard reference"
     )
@@ -82,6 +97,12 @@ def test_cli_install_skills_keeps_dashboard_examples_out_of_context_reference(
         "keysso-cli dashboard domain --domain пример.рф --base msk"
         not in reference_text
         and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'
+        not in reference_text
+        and "keysso-cli dashboard ad-history --domain пример.рф --base msk"
+        not in reference_text
+        and 'keysso-cli dashboard similarkeys --keyword "пластиковые окна" --base msk --page 1 --per-page 25 --sort wsk|asc'
+        not in reference_text
+        and "keysso-cli dashboard top-visibility --domain пример.рф --base msk --page 1 --per-page 25 --sort topvis|asc"
         not in reference_text
     ), (
         "Install command unexpectedly mixes dashboard examples into context/direct reference"

@@ -92,6 +92,9 @@ def make_factory() -> tuple[dict[str, Any], Any]:
             direct=direct,
             retrieve_domain_dashboard=domain_dashboard_method,
             retrieve_keyword_dashboard=dashboard_method,
+            retrieve_domain_ad_history=make_method("domain_ad_history"),
+            retrieve_similarkeys=make_method("similarkeys"),
+            retrieve_top_domain_visibility=make_method("top_domain_visibility"),
         )
     )
 
