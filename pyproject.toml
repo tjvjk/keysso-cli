@@ -1,7 +1,7 @@
 [project]
 name = "keysso-cli"
 version = "0.5.0"
-description = "CLI-клиент для работы с эндпоинтами Keysso"
+description = "AI-first CLI для Keys.so API и skills, которые помогают маркетологам принимать решения на данных"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
