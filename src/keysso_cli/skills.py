@@ -5,7 +5,16 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from keysso_cli.context import (
+    ADS_FACTS_FIELDS,
+    ADS_LINKS_FIELDS,
+    ADS_RETRIEVE_FIELDS,
+    CONCURENTS_FIELDS,
+    KEYWORDS_BYADS_FIELDS,
+    KEYWORDS_LIST_FIELDS,
+)
 from keysso_cli.dashboard import DASHBOARD_DOMAIN_FIELDS, DASHBOARD_KEYWORD_FIELDS
+from keysso_cli.direct import DIRECT_ADS_FIELDS, DIRECT_DOMAIN_FIELDS
 
 SKILL_TEMPLATE = """---
 name: keysso-cli
@@ -78,7 +87,7 @@ description: Скилл для работы со всем сервисом Keys.
 - `zen` # Дзен
 """
 
-CONTEXT_ADS_REFERENCE = """# Разделы «Контекстная реклама» и «Яндекс Директ» в keysso-cli
+CONTEXT_ADS_REFERENCE = f"""# Разделы «Контекстная реклама» и «Яндекс Директ» в keysso-cli
 
 Этот файл описывает текущую структуру `keysso-cli` для разделов `context` и `direct`.
 
@@ -123,10 +132,22 @@ keysso-cli
 - Назначение: получить список конкурентов домена в контекстной рекламе
 - Пример: `keysso-cli context concurents --domain пример.рф --base msk`
 
+Поля ответа API:
+
+```text
+{CONCURENTS_FIELDS}
+```
+
 ### `context keywords list`
 
 - Назначение: получить ключевые слова домена в контексте
 - Пример: `keysso-cli context keywords list --domain пример.рф --base msk --page 1 --per-page 25`
+
+Поля ответа API:
+
+```text
+{KEYWORDS_LIST_FIELDS}
+```
 
 ### `context keywords byads`
 
@@ -134,26 +155,56 @@ keysso-cli
 - Дополнительно обязателен `--ads-id`
 - Пример: `keysso-cli context keywords byads --domain пример.рф --ads-id 42 --base msk`
 
+Поля ответа API:
+
+```text
+{KEYWORDS_BYADS_FIELDS}
+```
+
 ### `context ads retrieve`
 
 - Назначение: получить объявления домена
 - Опция `--full` добавляет массив ключевых слов в каждом объявлении
 - Пример: `keysso-cli context ads retrieve --domain пример.рф --base msk --full`
 
+Поля ответа API:
+
+```text
+{ADS_RETRIEVE_FIELDS}
+```
+
 ### `context ads links`
 
 - Назначение: получить уникальные ссылки из объявлений
 - Пример: `keysso-cli context ads links --domain пример.рф --base msk`
+
+Поля ответа API:
+
+```text
+{ADS_LINKS_FIELDS}
+```
 
 ### `context ads facts`
 
 - Назначение: получить уникальные факты из объявлений
 - Пример: `keysso-cli context ads facts --domain пример.рф --base msk`
 
+Поля ответа API:
+
+```text
+{ADS_FACTS_FIELDS}
+```
+
 ### `direct domain`
 
 - Назначение: получить объявления Яндекс Директ по домену
 - Пример: `keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25`
+
+Поля ответа API:
+
+```text
+{DIRECT_DOMAIN_FIELDS}
+```
 
 ### `direct ads`
 
@@ -161,6 +212,12 @@ keysso-cli
 - Нужен один из аргументов: `--kid` или `--keyword`
 - Пример: `keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25`
 - Пример: `keysso-cli direct ads --keyword "пластиковые окна" --base msk --page 1 --per-page 25`
+
+Поля ответа API:
+
+```text
+{DIRECT_ADS_FIELDS}
+```
 
 ## Практический рабочий процесс
 

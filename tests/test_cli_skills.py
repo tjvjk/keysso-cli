@@ -63,6 +63,13 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         in reference_text
         and 'keysso-cli direct ads --keyword "пластиковые окна" --base msk --page 1 --per-page 25'
         in reference_text
+        and "Поля ответа API:" in reference_text
+        and "data          — массив записей по конкурентам" in reference_text
+        and "superwsk      — суперточная частотность" in reference_text
+        and "keyscnt       — количество запросов" in reference_text
+        and "keys_count    — количество запросов по объявлению" in reference_text
+        and "updated_at    — дата обновления данных" in reference_text
+        and "uuid          — идентификатор объявления" in reference_text
     ), (
         "Install command unexpectedly does not create the expected skill files in current directory"
     )
