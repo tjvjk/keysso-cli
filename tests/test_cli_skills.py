@@ -2,50 +2,65 @@
 
 from __future__ import annotations
 
-import io
-import json
-from pathlib import Path
+from typing import Any
 
 import pytest
 
 from keysso_cli.cli import execute
 
 
-def test_cli_install_skills_creates_skill_files_in_current_directory(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
+def test_cli_install_skills_reports_written_paths_in_payload(
+    installed_skill_bundle: dict[str, Any],
 ) -> None:
-    """Install command cannot skip creating the skill bundle."""
-    monkeypatch.chdir(tmp_path)
-    stream = io.StringIO()
-    execute(["install", "--skills"], env={}, stream=stream)
-    payload = json.loads(stream.getvalue())
-    skill = tmp_path / ".claude" / "skills" / "keysso-cli"
-    skill_file = skill / "SKILL.md"
-    reference = skill / "references" / "context-ads.md"
-    dashboard = skill / "references" / "dashboard.md"
-    skill_text = skill_file.read_text(encoding="utf-8")
-    reference_text = reference.read_text(encoding="utf-8")
-    dashboard_text = dashboard.read_text(encoding="utf-8")
-    expected = {
-        str(skill_file),
-        str(dashboard),
-        str(reference),
-    }
+    """Install command cannot skip payload metadata for generated files."""
+    payload = installed_skill_bundle["payload"]
+    skill = installed_skill_bundle["skill"]
+    skill_file = installed_skill_bundle["skill_file"]
+    reference = installed_skill_bundle["reference"]
+    dashboard = installed_skill_bundle["dashboard"]
+    expected = {str(skill_file), str(dashboard), str(reference)}
     assert (
         payload["status"] == "ok"
         and payload["path"] == str(skill)
         and set(payload["files"]) == expected
-        and skill_file.exists()
-        and dashboard.exists()
-        and reference.exists()
-        and "keysso-cli dashboard domain --domain <домен>" in skill_text
+    ), "Install command unexpectedly reports invalid payload for generated skill files"
+
+
+def test_cli_install_skills_creates_expected_files(
+    installed_skill_bundle: dict[str, Any],
+) -> None:
+    """Install command cannot skip writing any required skill file."""
+    skill_file = installed_skill_bundle["skill_file"]
+    reference = installed_skill_bundle["reference"]
+    dashboard = installed_skill_bundle["dashboard"]
+    assert skill_file.exists() and dashboard.exists() and reference.exists(), (
+        "Install command unexpectedly does not create the expected skill files in current directory"
+    )
+
+
+def test_cli_install_skills_writes_dashboard_and_direct_commands_to_skill_template(
+    installed_skill_bundle: dict[str, Any],
+) -> None:
+    """Skill template cannot miss command cheatsheet rows."""
+    skill_text = installed_skill_bundle["skill_file"].read_text(encoding="utf-8")
+    assert (
+        "keysso-cli dashboard domain --domain <домен>" in skill_text
         and "keysso-cli dashboard keyword --keyword <фраза>" in skill_text
         and "keysso-cli direct domain --domain <домен>" in skill_text
         and "keysso-cli direct ads --kid <id>" in skill_text
         and "keysso-cli direct ads --keyword <фраза>" in skill_text
-        and "keysso-cli dashboard domain --domain пример.рф --base msk"
-        in dashboard_text
+    ), (
+        "Install command unexpectedly does not include required command lines in SKILL.md"
+    )
+
+
+def test_cli_install_skills_writes_dashboard_reference_examples_and_fields(
+    installed_skill_bundle: dict[str, Any],
+) -> None:
+    """Dashboard reference cannot miss examples and field glossary."""
+    dashboard_text = installed_skill_bundle["dashboard"].read_text(encoding="utf-8")
+    assert (
+        "keysso-cli dashboard domain --domain пример.рф --base msk" in dashboard_text
         and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'
         in dashboard_text
         and "aiAnswersCnt" in dashboard_text
@@ -53,11 +68,33 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         and "adkeyscnt" in dashboard_text
         and "similar" in dashboard_text
         and "isquest" in dashboard_text
-        and "keysso-cli dashboard domain --domain пример.рф --base msk"
+    ), (
+        "Install command unexpectedly does not include dashboard docs in dashboard reference"
+    )
+
+
+def test_cli_install_skills_keeps_dashboard_examples_out_of_context_reference(
+    installed_skill_bundle: dict[str, Any],
+) -> None:
+    """Context reference cannot include dashboard command examples."""
+    reference_text = installed_skill_bundle["reference"].read_text(encoding="utf-8")
+    assert (
+        "keysso-cli dashboard domain --domain пример.рф --base msk"
         not in reference_text
         and 'keysso-cli dashboard keyword --keyword "пластиковые окна" --base msk'
         not in reference_text
-        and "keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25"
+    ), (
+        "Install command unexpectedly mixes dashboard examples into context/direct reference"
+    )
+
+
+def test_cli_install_skills_writes_direct_examples_and_field_docs_to_context_reference(
+    installed_skill_bundle: dict[str, Any],
+) -> None:
+    """Context reference cannot miss direct examples and response field descriptions."""
+    reference_text = installed_skill_bundle["reference"].read_text(encoding="utf-8")
+    assert (
+        "keysso-cli direct domain --domain пример.рф --base msk --page 1 --per-page 25"
         in reference_text
         and "keysso-cli direct ads --kid 17222067 --base msk --page 1 --per-page 25"
         in reference_text
@@ -71,7 +108,7 @@ def test_cli_install_skills_creates_skill_files_in_current_directory(
         and "updated_at    — дата обновления данных" in reference_text
         and "uuid          — идентификатор объявления" in reference_text
     ), (
-        "Install command unexpectedly does not create the expected skill files in current directory"
+        "Install command unexpectedly does not include context/direct docs in context reference"
     )
 
 

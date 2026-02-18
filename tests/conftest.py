@@ -8,6 +8,7 @@ import logging
 import os
 import time
 from contextlib import contextmanager, redirect_stdout
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Callable, Iterator, Mapping
 
@@ -102,6 +103,29 @@ def make_factory() -> tuple[dict[str, Any], Any]:
         yield SimpleNamespace(report=report)
 
     return box, factory
+
+
+@pytest.fixture
+def installed_skill_bundle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> dict[str, Any]:
+    """Install command output cannot be reused without structured bundle context."""
+    monkeypatch.chdir(tmp_path)
+    stream = io.StringIO()
+    execute(["install", "--skills"], env={}, stream=stream)
+    payload = json.loads(stream.getvalue())
+    skill = tmp_path / ".claude" / "skills" / "keysso-cli"
+    skill_file = skill / "SKILL.md"
+    reference = skill / "references" / "context-ads.md"
+    dashboard = skill / "references" / "dashboard.md"
+    return {
+        "payload": payload,
+        "skill": skill,
+        "skill_file": skill_file,
+        "reference": reference,
+        "dashboard": dashboard,
+    }
 
 
 @pytest.fixture
